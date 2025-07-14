@@ -1,108 +1,128 @@
 local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 local MarketplaceService = game:GetService("MarketplaceService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local SubmitAnswer = Remotes:WaitForChild("SubmitAnswer")
 local RunService = game:GetService("RunService")
 
--- UI Setup
-local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
-ScreenGui.Name = "SpellingBeeUI"
-ScreenGui.ResetOnSpawn = false
+-- Toggle variable
+local autoSpellEnabled = false
 
-local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 220, 0, 80)
-Frame.Position = UDim2.new(0.5, -110, 0.5, -40)
-Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-Frame.BorderSizePixel = 0
-Frame.Active = true
-Frame.Draggable = true
-Frame.Parent = ScreenGui
+-- UI
+local screenGui = Instance.new("ScreenGui", game.CoreGui)
+screenGui.Name = "AutoSpellerUI"
 
-local UICorner = Instance.new("UICorner", Frame)
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 160, 0, 60)
+frame.Position = UDim2.new(0, 20, 0.5, -30)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
+
+local UICorner = Instance.new("UICorner", frame)
 UICorner.CornerRadius = UDim.new(0, 8)
 
-local Title = Instance.new("TextLabel", Frame)
-Title.Size = UDim2.new(1, -35, 0, 25)
-Title.Position = UDim2.new(0, 10, 0, 5)
-Title.Text = "🐝 Auto Speller"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.BackgroundTransparency = 1
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 14
-Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Parent = Frame
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 25)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.Text = "🐝 Auto Speller"
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.GothamBold
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextSize = 14
+title.Parent = frame
 
-local MinBtn = Instance.new("TextButton", Frame)
-MinBtn.Size = UDim2.new(0, 25, 0, 25)
-MinBtn.Position = UDim2.new(1, -30, 0, 5)
-MinBtn.Text = "-"
-MinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-MinBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-MinBtn.Font = Enum.Font.Gotham
-MinBtn.TextSize = 18
-MinBtn.Parent = Frame
+local toggle = Instance.new("TextButton", frame)
+toggle.Size = UDim2.new(0, 140, 0, 25)
+toggle.Position = UDim2.new(0.5, -70, 0, 30)
+toggle.Text = "Status: OFF"
+toggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggle.Font = Enum.Font.GothamBold
+toggle.TextSize = 13
+toggle.AutoButtonColor = true
 
-local uiMinimized = false
-MinBtn.MouseButton1Click:Connect(function()
-	uiMinimized = not uiMinimized
-	for _, v in pairs(Frame:GetChildren()) do
-		if (v:IsA("TextLabel") or v:IsA("TextButton")) and v ~= MinBtn and v ~= Title then
-			v.Visible = not uiMinimized
-		end
-	end
+local toggleCorner = Instance.new("UICorner", toggle)
+toggleCorner.CornerRadius = UDim.new(0, 6)
+
+toggle.MouseButton1Click:Connect(function()
+	autoSpellEnabled = not autoSpellEnabled
+	toggle.Text = autoSpellEnabled and "Status: ON ✅" or "Status: OFF"
+	toggle.BackgroundColor3 = autoSpellEnabled and Color3.fromRGB(40, 120, 40) or Color3.fromRGB(60, 60, 60)
 end)
 
--- RGB Credit Text
-local Credit = Instance.new("TextLabel", Frame)
-Credit.Size = UDim2.new(1, -20, 0, 20)
-Credit.Position = UDim2.new(0, 10, 1, -25)
-Credit.Text = "Script by - @Luminaprojects"
-Credit.BackgroundTransparency = 1
-Credit.Font = Enum.Font.Gotham
-Credit.TextSize = 13
-Credit.TextXAlignment = Enum.TextXAlignment.Left
-Credit.TextColor3 = Color3.new(1, 1, 1)
-Credit.Parent = Frame
+-- RGB credit (opsional)
+local credit = Instance.new("TextLabel", frame)
+credit.Size = UDim2.new(1, 0, 0, 15)
+credit.Position = UDim2.new(0, 0, 1, -15)
+credit.BackgroundTransparency = 1
+credit.Font = Enum.Font.Gotham
+credit.TextSize = 12
+credit.Text = "Script by - @Luminaprojects"
+credit.TextColor3 = Color3.new(1, 1, 1)
+credit.Parent = frame
 
 local hue = 0
 RunService.RenderStepped:Connect(function()
 	hue = (hue + 1) % 360
-	Credit.TextColor3 = Color3.fromHSV(hue / 360, 1, 1)
+	credit.TextColor3 = Color3.fromHSV(hue / 360, 1, 1)
 end)
 
--- Logic: Auto spelling letter by letter
+-- Ambil GUI Keyboard
+local function getKeyboardGui()
+	for _, gui in pairs(LocalPlayer.PlayerGui:GetDescendants()) do
+		if gui:IsA("TextButton") or gui:IsA("ImageButton") then
+			if gui.Name == "Q" or gui.Name == "A" then
+				return gui.Parent
+			end
+		end
+	end
+	return nil
+end
+
+-- Fungsi ngetik huruf + tekan Submit
+local function typeWord(word)
+	local keyboard = getKeyboardGui()
+	if not keyboard then
+		warn("Keyboard not found")
+		return
+	end
+
+	for i = 1, #word do
+		local letter = word:sub(i, i):upper()
+		local btn = keyboard:FindFirstChild(letter, true)
+		if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) then
+			pcall(function() btn:Activate() end)
+		end
+		task.wait(0.25)
+	end
+
+	-- Cari tombol submit
+	for _, gui in pairs(LocalPlayer.PlayerGui:GetDescendants()) do
+		if gui:IsA("TextButton") and gui.Name:lower():find("submit") then
+			task.wait(0.3)
+			pcall(function() gui:Activate() end)
+			break
+		end
+	end
+end
+
+-- Saat suara muncul → Ambil kata → Ketik
 game.DescendantAdded:Connect(function(obj)
-	if obj:IsA("Sound") then
+	if obj:IsA("Sound") and autoSpellEnabled then
 		task.defer(function()
-			for attempt = 1, 10 do
-				local soundId = obj.SoundId
-				local assetId = soundId:match("%d+")
-				
-				if assetId then
-					local success, info = pcall(function()
-						return MarketplaceService:GetProductInfo(tonumber(assetId))
-					end)
+			local soundId = obj.SoundId:match("%d+")
+			if soundId then
+				local success, info = pcall(function()
+					return MarketplaceService:GetProductInfo(tonumber(soundId))
+				end)
 
-					if success and info and info.Name then
-						local word = info.Name
-						word = word:match("^(.-)%s*%(%d+%)$") or word
-						word = word:lower():gsub("%s+", "") -- lowercase & hapus spasi
-
-						-- Ketik huruf demi huruf
-						for i = 1, #word do
-							local huruf = word:sub(i, i)
-							SubmitAnswer:FireServer({ "Type", huruf })
-							task.wait(0.2) -- delay antar huruf (biar keliatan ngetik)
-						end
-
-						-- Tunggu sebelum submit
-						task.wait(0.3)
-						SubmitAnswer:FireServer({ "Submit", word })
-					end
-					break
+				if success and info and info.Name then
+					local word = info.Name
+					word = word:match("^(.-)%s*%(%d+%)$") or word
+					word = word:lower():gsub("%s+", "") -- bersih
+					typeWord(word)
 				end
-				task.wait(0.1)
 			end
 		end)
 	end
