@@ -20,9 +20,17 @@ local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"
 ScreenGui.Name = "AutoSystemUI"
 ScreenGui.ResetOnSpawn = false
 
+-- Coba ambil posisi yang tersimpan
+local savedPos = LocalPlayer.PlayerGui:FindFirstChild("SavedPos")
+local posX, posY = 0.5, 0.2
+if savedPos and savedPos:FindFirstChild("X") and savedPos:FindFirstChild("Y") then
+	posX = tonumber(savedPos.X.Value)
+	posY = tonumber(savedPos.Y.Value)
+end
+
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Size = UDim2.new(0, 260, 0, 380)
-MainFrame.Position = UDim2.new(0.5, -130, 0.2, 0) -- diposisikan ke tengah atas
+MainFrame.Position = UDim2.new(posX, -130, posY, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(70, 50, 150)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
@@ -34,7 +42,7 @@ gradient.Color = ColorSequence.new{
 }
 
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Text = "🥊1 Punch Every Second!"
+Title.Text = "🥊1 Punch Every Seconds"
 Title.Font = Enum.Font.GothamBold
 Title.TextColor3 = Color3.new(1, 1, 1)
 Title.TextSize = 18
@@ -66,7 +74,18 @@ Title.InputBegan:Connect(function(input)
         dragStart = input.Position
         startPos = MainFrame.Position
         input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then dragging = false end
+            if input.UserInputState == Enum.UserInputState.End then 
+                dragging = false 
+                -- Simpan posisi ke PlayerGui
+                local saveFolder = LocalPlayer.PlayerGui:FindFirstChild("SavedPos") or Instance.new("Folder", LocalPlayer.PlayerGui)
+                saveFolder.Name = "SavedPos"
+                local xVal = saveFolder:FindFirstChild("X") or Instance.new("StringValue", saveFolder)
+                xVal.Name = "X"
+                local yVal = saveFolder:FindFirstChild("Y") or Instance.new("StringValue", saveFolder)
+                yVal.Name = "Y"
+                xVal.Value = tostring(MainFrame.Position.X.Scale)
+                yVal.Value = tostring(MainFrame.Position.Y.Scale)
+            end
         end)
     end
 end)
@@ -193,7 +212,7 @@ task.spawn(function()
 end)
 
 local Credit = Instance.new("TextLabel", ScreenGui)
-Credit.Text = "⭐ Script By - @Luminaprojects | YouTube > Luminaprojects ⭐"
+Credit.Text = "📜 Script By - @Luminaprojects ⚙️"
 Credit.Font = Enum.Font.GothamBold
 Credit.TextSize = 14
 Credit.Position = UDim2.new(0.5, -130, 1, -25)
