@@ -29,8 +29,8 @@ ScreenGui.Name = "AutoSystemUI"
 ScreenGui.ResetOnSpawn = false
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 320, 0, 310)
-MainFrame.Position = UDim2.new(0.5, -160, 0.5, -150)
+MainFrame.Size = UDim2.new(0, 320, 0, 360)
+MainFrame.Position = UDim2.new(0.5, -160, 0.5, -180)
 MainFrame.BackgroundColor3 = Color3.fromRGB(70, 50, 150)
 MainFrame.BorderSizePixel = 0
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -47,7 +47,7 @@ UIGradient.Color = ColorSequence.new{
 UIGradient.Rotation = 45
 
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Text = "⚙️ Auto System"
+Title.Text = "+1 Punch Every Second"
 Title.Font = Enum.Font.GothamBold
 Title.TextColor3 = Color3.new(1, 1, 1)
 Title.TextSize = 20
@@ -76,26 +76,6 @@ Content.Size = UDim2.new(1, -20, 1, -50)
 Content.Position = UDim2.new(0, 10, 0, 45)
 Content.BackgroundTransparency = 1
 
-local function createButton(name, positionY, color)
-	local button = Instance.new("TextButton", Content)
-	button.Text = name .. ": OFF"
-	button.Font = Enum.Font.GothamBold
-	button.TextColor3 = Color3.new(1, 1, 1)
-	button.TextSize = 18
-	button.BackgroundColor3 = color
-	button.Size = UDim2.new(0, 280, 0, 40)
-	button.Position = UDim2.new(0, 0, 0, positionY)
-	button.AutoButtonColor = true
-	local corner = Instance.new("UICorner", button)
-	corner.CornerRadius = UDim.new(0, 8)
-	return button
-end
-
-local ToggleTrain = createButton("Auto Train", 0, Color3.fromRGB(100, 100, 255))
-local ToggleRebirth = createButton("Auto Rebirth", 50, Color3.fromRGB(255, 100, 100))
-local ToggleKill = createButton("Auto Kill", 100, Color3.fromRGB(100, 255, 150))
-local ToggleReward = createButton("Give Coins", 150, Color3.fromRGB(255, 170, 80))
-
 -- Drag Logic
 local dragging, dragStart, startPos
 MainFrame.InputBegan:Connect(function(input)
@@ -117,16 +97,38 @@ UserInputService.InputChanged:Connect(function(input)
 	end
 end)
 
--- Minimize Logic
+-- Buttons
+local function createButton(name, positionY, color)
+	local button = Instance.new("TextButton", Content)
+	button.Text = name .. ": OFF"
+	button.Font = Enum.Font.GothamBold
+	button.TextColor3 = Color3.new(1, 1, 1)
+	button.TextSize = 18
+	button.BackgroundColor3 = color
+	button.Size = UDim2.new(0, 280, 0, 40)
+	button.Position = UDim2.new(0, 0, 0, positionY)
+	button.AutoButtonColor = true
+	local corner = Instance.new("UICorner", button)
+	corner.CornerRadius = UDim.new(0, 8)
+	return button
+end
+
+local ToggleTrain = createButton("Auto Train", 0, Color3.fromRGB(100, 100, 255))
+local ToggleRebirth = createButton("Auto Rebirth", 50, Color3.fromRGB(255, 100, 100))
+local ToggleKill = createButton("Auto Kill", 100, Color3.fromRGB(100, 255, 150))
+local ToggleReward = createButton("Give Coins", 150, Color3.fromRGB(255, 170, 80))
+local ToggleStrength = createButton("Give Strength", 200, Color3.fromRGB(255, 170, 100))
+
+-- Minimize
 local minimized = false
 Minimize.MouseButton1Click:Connect(function()
 	minimized = not minimized
 	Content.Visible = not minimized
-	MainFrame:TweenSize(UDim2.new(0, 320, 0, minimized and 50 or 310), "Out", "Quad", 0.3, true)
+	MainFrame:TweenSize(UDim2.new(0, 320, 0, minimized and 50 or 360), "Out", "Quad", 0.3, true)
 end)
 
--- Toggles
-local autoTrain, autoRebirth, autoKill, autoReward = false, false, false, false
+-- Toggle Flags
+local autoTrain, autoRebirth, autoKill, autoReward, autoStrength = false, false, false, false, false
 
 ToggleTrain.MouseButton1Click:Connect(function()
 	autoTrain = not autoTrain
@@ -146,24 +148,26 @@ ToggleKill.MouseButton1Click:Connect(function()
 	ToggleKill.BackgroundColor3 = autoKill and Color3.fromRGB(50, 200, 100) or Color3.fromRGB(100, 255, 150)
 end)
 
-
-
-local ToggleStrength = createButton("Give Strength", 200, Color3.fromRGB(255, 170, 100))
-local autoStrength = false
-ToggleStrength.MouseButton1Click:Connect(function()
-	autoStrength = not autoStrength
-	ToggleStrength.Text = "Give Strength: " .. (autoStrength and "ON" or "OFF")
-	ToggleStrength.BackgroundColor3 = autoStrength and Color3.fromRGB(50, 200, 100) or Color3.fromRGB(255, 170, 100)
-end)
-
-
 ToggleReward.MouseButton1Click:Connect(function()
 	autoReward = not autoReward
 	ToggleReward.Text = "Give Coins: " .. (autoReward and "ON" or "OFF")
 	ToggleReward.BackgroundColor3 = autoReward and Color3.fromRGB(50, 200, 100) or Color3.fromRGB(255, 170, 80)
 end)
 
--- Logic Loops
+ToggleStrength.MouseButton1Click:Connect(function()
+	autoStrength = not autoStrength
+	ToggleStrength.Text = "Give Strength: " .. (autoStrength and "ON" or "OFF")
+	ToggleStrength.BackgroundColor3 = autoStrength and Color3.fromRGB(50, 200, 100) or Color3.fromRGB(255, 170, 100)
+end)
+
+-- ESP + Logic
+local esp = Drawing.new("Circle")
+esp.Thickness = 2
+esp.Radius = 6
+esp.Filled = true
+esp.Color = Color3.fromRGB(255, 0, 0)
+esp.Visible = false
+
 task.spawn(function()
 	local killRadius = 20
 	while true do
@@ -209,55 +213,10 @@ task.spawn(function()
 				RewardEvent:InvokeServer(true, 250, "Cash")
 			end
 		end
-		
 		if autoStrength then
 			local stats = LocalPlayer:FindFirstChild("leaderstats")
 			if stats and stats:FindFirstChild("Coins") and stats.Coins.Value >= 1000000 then
-				ReplicatedStorage:WaitForChild("ServerEvents"):WaitForChild("PlaytimeRewardEvent"):WaitForChild("ButtonClicked"):InvokeServer(true, 1000, "Strength")
-			end
-		end
-
-		task.wait(1)
-	end
-end)
-
--- ESP Nearest NPC
-local esp = Drawing.new("Circle")
-esp.Thickness = 2
-esp.Radius = 6
-esp.Filled = true
-esp.Color = Color3.fromRGB(255, 0, 0)
-esp.Visible = false
-
-task.spawn(function()
-	while true do
-		esp.Visible = false
-		if autoKill then
-			local closest, dist = nil, math.huge
-			local char = LocalPlayer.Character
-			if char and char:FindFirstChild("HumanoidRootPart") then
-				for z = 1, 9 do
-					local folder = workspace:FindFirstChild("Zone " .. z)
-					if folder and folder:FindFirstChild("NPC's") then
-						for _, name in pairs(npcZones[z]) do
-							local npc = folder["NPC's"]:FindFirstChild(name)
-							if npc and npc:FindFirstChild("Head") then
-								local d = (char.HumanoidRootPart.Position - npc.Head.Position).Magnitude
-								if d < dist and d <= 50 then
-									closest = npc
-									dist = d
-								end
-							end
-						end
-					end
-				end
-				if closest then
-					local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(closest.Head.Position + Vector3.new(0,2,0))
-					if onScreen then
-						esp.Position = Vector2.new(screenPos.X, screenPos.Y)
-						esp.Visible = true
-					end
-				end
+				RewardEvent:InvokeServer(true, 1000, "Strength")
 			end
 		end
 		RunService.RenderStepped:Wait()
