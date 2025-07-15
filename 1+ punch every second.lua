@@ -25,7 +25,7 @@ local npcZones = {
 
 -- UI Setup
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
-ScreenGui.Name = "AutoSystemUI"
+ScreenGui.Name = "+1PunchEverySecondUI"
 ScreenGui.ResetOnSpawn = false
 
 local MainFrame = Instance.new("Frame")
@@ -47,7 +47,7 @@ UIGradient.Color = ColorSequence.new{
 UIGradient.Rotation = 45
 
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Text = "+1 Punch Every Second"
+Title.Text = "+1 Punch Every Second! 🥊"
 Title.Font = Enum.Font.GothamBold
 Title.TextColor3 = Color3.new(1, 1, 1)
 Title.TextSize = 20
@@ -96,6 +96,38 @@ UserInputService.InputChanged:Connect(function(input)
 			startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 	end
 end)
+
+
+-- Drag Logic (Fix for Android & PC)
+local dragging = false
+local dragInput, dragStart, startPos
+
+Title.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = MainFrame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		local delta = input.Position - dragStart
+		MainFrame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
 
 -- Buttons
 local function createButton(name, positionY, color)
