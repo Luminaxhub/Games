@@ -22,7 +22,7 @@ ScreenGui.ResetOnSpawn = false
 
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Size = UDim2.new(0, 260, 0, 380)
-MainFrame.Position = UDim2.new(0.5, -130, 0.5, -190)
+MainFrame.Position = UDim2.new(0.5, -130, 0.2, 0) -- diposisikan ke tengah atas
 MainFrame.BackgroundColor3 = Color3.fromRGB(70, 50, 150)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
@@ -34,7 +34,7 @@ gradient.Color = ColorSequence.new{
 }
 
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Text = "🥊1 Punch Every Seconds"
+Title.Text = "🥊1 Punch Every Second!"
 Title.Font = Enum.Font.GothamBold
 Title.TextColor3 = Color3.new(1, 1, 1)
 Title.TextSize = 18
@@ -193,7 +193,7 @@ task.spawn(function()
 end)
 
 local Credit = Instance.new("TextLabel", ScreenGui)
-Credit.Text = "⭐ Script By - @Luminaprojects ⭐"
+Credit.Text = "⭐ Script By - @Luminaprojects | YouTube > Luminaprojects ⭐"
 Credit.Font = Enum.Font.GothamBold
 Credit.TextSize = 14
 Credit.Position = UDim2.new(0.5, -130, 1, -25)
