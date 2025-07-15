@@ -1,5 +1,3 @@
--- AUTO SYSTEM UI - With Dropdown NPC Selection + Add Aura 3x by Luminaprojects
-
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -23,8 +21,8 @@ ScreenGui.Name = "AutoSystemUI"
 ScreenGui.ResetOnSpawn = false
 
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 300, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -150, 0.5, -180)
+MainFrame.Size = UDim2.new(0, 260, 0, 380)
+MainFrame.Position = UDim2.new(0.5, -130, 0.5, -190)
 MainFrame.BackgroundColor3 = Color3.fromRGB(70, 50, 150)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
@@ -36,7 +34,7 @@ gradient.Color = ColorSequence.new{
 }
 
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Text = "🥊 1Punch Every Seconds"
+Title.Text = "🥊1 Punch Every Seconds"
 Title.Font = Enum.Font.GothamBold
 Title.TextColor3 = Color3.new(1, 1, 1)
 Title.TextSize = 18
@@ -86,7 +84,7 @@ local function createButton(text, yPos, color)
     btn.Font = Enum.Font.GothamBold
     btn.TextColor3 = Color3.new(1,1,1)
     btn.TextSize = 16
-    btn.Size = UDim2.new(0, 270, 0, 34)
+    btn.Size = UDim2.new(0, 260, 0, 34)
     btn.Position = UDim2.new(0, 0, 0, yPos)
     btn.BackgroundColor3 = color
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
@@ -99,8 +97,8 @@ local ToggleAura3x = createButton("Add Aura 3x", 80, Color3.fromRGB(255, 165, 0)
 local ToggleKill = createButton("Kill Aura", 120, Color3.fromRGB(100, 255, 150))
 
 local Dropdown = Instance.new("TextButton", Content)
-Dropdown.Size = UDim2.new(0, 270, 0, 34)
-Dropdown.Position = UDim2.new(0, 0, 0, 170)
+Dropdown.Size = UDim2.new(0, 260, 0, 34)
+Dropdown.Position = UDim2.new(0, 0, 0, 160)
 Dropdown.Text = "Select NPC: Bandit"
 Dropdown.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 Dropdown.Font = Enum.Font.Gotham
@@ -144,7 +142,7 @@ local minimized = false
 Minimize.MouseButton1Click:Connect(function()
     minimized = not minimized
     Content.Visible = not minimized
-    MainFrame:TweenSize(UDim2.new(0, 300, 0, minimized and 50 or 400), "Out", "Quad", 0.3, true)
+    MainFrame:TweenSize(UDim2.new(0, 260, 0, minimized and 50 or 380), "Out", "Quad", 0.3, true)
 end)
 
 task.spawn(function()
@@ -168,15 +166,22 @@ task.spawn(function()
             end)
         end
 
-        if autoKill and character and character:FindFirstChild("HumanoidRootPart") then
+        if autoKill and character then
             for zone = 1, 9 do
-                local folder = Workspace:FindFirstChild("Zone " .. zone)
-                if folder and folder:FindFirstChild("NPC's") then
-                    local npc = folder["NPC's"]:FindFirstChild(SelectedNPC)
+                local zoneFolder = Workspace:FindFirstChild("Zone " .. zone)
+                if zoneFolder and zoneFolder:FindFirstChild("NPC's") then
+                    local npcFolder = zoneFolder["NPC's"]
+                    local npc = npcFolder:FindFirstChild(SelectedNPC)
                     if npc and npc:FindFirstChild("LowerTorso") then
-                        local distance = (character.HumanoidRootPart.Position - npc.LowerTorso.Position).Magnitude
-                        if distance <= 30 then
-                            DamageRE:FireServer(character, npc.LowerTorso, false, false)
+                        local dist = (character.HumanoidRootPart.Position - npc.LowerTorso.Position).Magnitude
+                        if dist <= 30 then
+                            local args = {
+                                character,
+                                npc.LowerTorso,
+                                false,
+                                true
+                            }
+                            DamageRE:FireServer(unpack(args))
                         end
                     end
                 end
@@ -191,8 +196,8 @@ local Credit = Instance.new("TextLabel", ScreenGui)
 Credit.Text = "⭐ Script By - @Luminaprojects ⭐"
 Credit.Font = Enum.Font.GothamBold
 Credit.TextSize = 14
-Credit.Position = UDim2.new(0.5, -150, 1, -25)
-Credit.Size = UDim2.new(0, 300, 0, 20)
+Credit.Position = UDim2.new(0.5, -130, 1, -25)
+Credit.Size = UDim2.new(0, 260, 0, 20)
 Credit.BackgroundTransparency = 1
 Credit.TextStrokeTransparency = 0.5
 Credit.TextStrokeColor3 = Color3.new(0, 0, 0)
