@@ -1,3 +1,6 @@
+-- Combined UI: Auto System + More Setting with Fix for Drag
+-- Author: @Luminaprojects
+
 -- Services
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -29,8 +32,8 @@ ScreenGui.Name = "+1PunchEverySecondUI"
 ScreenGui.ResetOnSpawn = false
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 320, 0, 360)
-MainFrame.Position = UDim2.new(0.5, -160, 0.5, -180)
+MainFrame.Size = UDim2.new(0, 260, 0, 320)
+MainFrame.Position = UDim2.new(0.5, -130, 0.5, -160)
 MainFrame.BackgroundColor3 = Color3.fromRGB(70, 50, 150)
 MainFrame.BorderSizePixel = 0
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -47,7 +50,7 @@ UIGradient.Color = ColorSequence.new{
 UIGradient.Rotation = 45
 
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Text = "+1 Punch Every Second! 🥊"
+Title.Text = "1+ Punch Every Second! 🥊"
 Title.Font = Enum.Font.GothamBold
 Title.TextColor3 = Color3.new(1, 1, 1)
 Title.TextSize = 20
@@ -137,7 +140,7 @@ local function createButton(name, positionY, color)
 	button.TextColor3 = Color3.new(1, 1, 1)
 	button.TextSize = 18
 	button.BackgroundColor3 = color
-	button.Size = UDim2.new(0, 280, 0, 40)
+	button.Size = UDim2.new(0, 230, 0, 36)
 	button.Position = UDim2.new(0, 0, 0, positionY)
 	button.AutoButtonColor = true
 	local corner = Instance.new("UICorner", button)
@@ -214,11 +217,19 @@ task.spawn(function()
 				end
 			end
 		end
-		if autoRebirth then
-			local stats = LocalPlayer:FindFirstChild("leaderstats")
-			if stats and stats:FindFirstChild("Coins") and stats.Coins.Value >= 1000000 then
-				RebirthRE:FireServer()
-			end
+		
+if autoRebirth then
+	local stats = LocalPlayer:FindFirstChild("leaderstats")
+	if not stats then stats = LocalPlayer:WaitForChild("leaderstats", 2) end
+	if stats then
+		local coins = stats:FindFirstChild("Coins")
+		if coins and coins.Value >= 1000000 then
+			print("[AutoRebirth] Rebirthing with "..coins.Value.." coins.")
+			RebirthRE:FireServer()
+		end
+	end
+end
+
 		end
 		if autoKill then
 			local char = LocalPlayer.Character
