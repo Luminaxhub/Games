@@ -1,3 +1,4 @@
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -24,8 +25,8 @@ ScreenGui.Name = "AutoSystemUI"
 ScreenGui.ResetOnSpawn = false
 
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 200, 0, 270)
-MainFrame.Position = UDim2.new(0.5, -100, 0.5, -135)
+MainFrame.Size = UDim2.new(0, 200, 0, 310)
+MainFrame.Position = UDim2.new(0.5, -100, 0.5, -155)
 MainFrame.BackgroundColor3 = Color3.fromRGB(70, 50, 150)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
@@ -37,7 +38,7 @@ gradient.Color = ColorSequence.new{
 }
 
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Text = "+1 Punch Every Second 🥊"
+Title.Text = "⚙️ Auto System"
 Title.Font = Enum.Font.GothamBold
 Title.TextColor3 = Color3.new(1, 1, 1)
 Title.TextSize = 18
@@ -62,7 +63,6 @@ Content.Size = UDim2.new(1, -20, 1, -50)
 Content.Position = UDim2.new(0, 10, 0, 45)
 Content.BackgroundTransparency = 1
 
--- DRAG
 local dragging, dragStart, startPos
 Title.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -82,7 +82,6 @@ UserInputService.InputChanged:Connect(function(input)
 	end
 end)
 
--- BUTTON CREATOR
 local function createButton(text, yPos, color)
 	local btn = Instance.new("TextButton", Content)
 	btn.Text = text .. ": OFF"
@@ -96,14 +95,13 @@ local function createButton(text, yPos, color)
 	return btn
 end
 
--- BUTTONS
 local ToggleTrain = createButton("Auto Train", 0, Color3.fromRGB(100, 100, 255))
 local ToggleRebirth = createButton("Auto Rebirth", 40, Color3.fromRGB(255, 100, 100))
-local ToggleKill = createButton("Auto Kill", 80, Color3.fromRGB(100, 255, 150))
+local ToggleKill = createButton("Kill Aura", 80, Color3.fromRGB(100, 255, 150))
 local ToggleReward = createButton("Give Coins", 120, Color3.fromRGB(255, 170, 80))
 local ToggleStrength = createButton("Give Strength", 160, Color3.fromRGB(255, 170, 100))
+local ToggleAura = createButton("Add Aura 3x", 200, Color3.fromRGB(255, 100, 255))
 
--- TOGGLES
 local autoTrain, autoRebirth, autoKill, autoReward, autoStrength = false, false, false, false, false
 
 ToggleTrain.MouseButton1Click:Connect(function()
@@ -116,7 +114,7 @@ ToggleRebirth.MouseButton1Click:Connect(function()
 end)
 ToggleKill.MouseButton1Click:Connect(function()
 	autoKill = not autoKill
-	ToggleKill.Text = "Auto Kill: " .. (autoKill and "ON" or "OFF")
+	ToggleKill.Text = "Kill Aura: " .. (autoKill and "ON" or "OFF")
 end)
 ToggleReward.MouseButton1Click:Connect(function()
 	autoReward = not autoReward
@@ -126,50 +124,50 @@ ToggleStrength.MouseButton1Click:Connect(function()
 	autoStrength = not autoStrength
 	ToggleStrength.Text = "Give Strength: " .. (autoStrength and "ON" or "OFF")
 end)
+ToggleAura.MouseButton1Click:Connect(function()
+	local args = { true, 3, "Multi" }
+	RewardEvent:InvokeServer(unpack(args))
+end)
 
--- MINIMIZE
 local minimized = false
 Minimize.MouseButton1Click:Connect(function()
 	minimized = not minimized
 	Content.Visible = not minimized
-	MainFrame:TweenSize(UDim2.new(0, 200, 0, minimized and 50 or 270), "Out", "Quad", 0.3, true)
+	MainFrame:TweenSize(UDim2.new(0, 200, 0, minimized and 50 or 310), "Out", "Quad", 0.3, true)
 end)
 
--- LOOP
 task.spawn(function()
 	while true do
-		if autoTrain then
+		local character = LocalPlayer.Character
+		local stats = LocalPlayer:FindFirstChild("leaderstats")
+		local coins = stats and (stats:FindFirstChild("Coins") or stats:FindFirstChild("Cash"))
+
+		if autoTrain and character then
 			for i = 1, 9 do
 				local zone = Workspace:FindFirstChild("Zone "..i)
 				if zone and zone:FindFirstChild("Punching bag "..i) then
 					local bag = zone["Punching bag "..i]:FindFirstChild("PunchBag")
 					if bag then
-						DamageRE:FireServer(LocalPlayer.Character, bag, true)
+						DamageRE:FireServer(character, bag, true)
 					end
 				end
 			end
 		end
 
-		if autoRebirth then
-			local stats = LocalPlayer:FindFirstChild("leaderstats")
-			if stats and stats:FindFirstChild("Coins") and stats.Coins.Value >= 1000000 then
-				RebirthRE:FireServer()
-			end
+		if autoRebirth and coins and coins.Value >= 1000000 then
+			RebirthRE:FireServer()
 		end
 
-		if autoKill then
-			local char = LocalPlayer.Character
-			if char and char:FindFirstChild("HumanoidRootPart") then
-				for zone = 1, 9 do
-					local folder = Workspace:FindFirstChild("Zone " .. zone)
-					if folder and folder:FindFirstChild("NPC's") then
-						for _, name in pairs(npcZones[zone]) do
-							local npc = folder["NPC's"]:FindFirstChild(name)
-							if npc and npc:FindFirstChild("LowerTorso") then
-								local dist = (char.HumanoidRootPart.Position - npc.LowerTorso.Position).Magnitude
-								if dist <= 20 then
-									DamageRE:FireServer(char, npc.LowerTorso, false, false)
-								end
+		if autoKill and character and character:FindFirstChild("HumanoidRootPart") then
+			for zone = 1, 9 do
+				local folder = Workspace:FindFirstChild("Zone " .. zone)
+				if folder and folder:FindFirstChild("NPC's") then
+					for _, name in pairs(npcZones[zone]) do
+						local npc = folder["NPC's"]:FindFirstChild(name)
+						if npc and npc:FindFirstChild("LowerTorso") then
+							local distance = (character.HumanoidRootPart.Position - npc.LowerTorso.Position).Magnitude
+							if distance <= 25 then
+								DamageRE:FireServer(character, npc.LowerTorso, false, false)
 							end
 						end
 					end
@@ -177,25 +175,18 @@ task.spawn(function()
 			end
 		end
 
-		if autoReward then
-			local stats = LocalPlayer:FindFirstChild("leaderstats")
-			if stats and stats:FindFirstChild("Coins") and stats.Coins.Value >= 1000000 then
-				RewardEvent:InvokeServer(true, 250, "Cash")
-			end
+		if autoReward and coins and coins.Value >= 1000000 then
+			RewardEvent:InvokeServer(true, 250, "Cash")
 		end
 
-		if autoStrength then
-			local stats = LocalPlayer:FindFirstChild("leaderstats")
-			if stats and stats:FindFirstChild("Coins") and stats.Coins.Value >= 1000000 then
-				RewardEvent:InvokeServer(true, 1000, "Strength")
-			end
+		if autoStrength and coins and coins.Value >= 1000000 then
+			RewardEvent:InvokeServer(true, 1000, "Strength")
 		end
 
 		RunService.RenderStepped:Wait()
 	end
 end)
 
--- CREDIT
 local Credit = Instance.new("TextLabel", ScreenGui)
 Credit.Text = "⭐ Script By - @Luminaprojects ⭐"
 Credit.Font = Enum.Font.GothamBold
