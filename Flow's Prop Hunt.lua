@@ -56,15 +56,15 @@ Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.SourceSansBold
 Title.TextSize = 20
 
--- Featured Text
-local Featured = Instance.new("TextLabel", MainFrame)
-Featured.Position = UDim2.new(0, 0, 0, 28)
-Featured.Size = UDim2.new(1, 0, 0, 20)
-Featured.BackgroundTransparency = 1
-Featured.Text = "Featured ⚙️"
-Featured.TextColor3 = Color3.fromRGB(180, 180, 180)
-Featured.Font = Enum.Font.SourceSans
-Featured.TextSize = 16
+-- Subtitle (Changed to "Key in my website")
+local Subtitle = Instance.new("TextLabel", MainFrame)
+Subtitle.Position = UDim2.new(0, 0, 0, 28)
+Subtitle.Size = UDim2.new(1, 0, 0, 20)
+Subtitle.BackgroundTransparency = 1
+Subtitle.Text = "Key in my website"
+Subtitle.TextColor3 = Color3.fromRGB(180, 180, 180)
+Subtitle.Font = Enum.Font.SourceSans
+Subtitle.TextSize = 16
 
 -- KEY INPUT BOX
 local KeyBox = Instance.new("TextBox", MainFrame)
@@ -77,11 +77,28 @@ KeyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 KeyBox.Font = Enum.Font.SourceSans
 KeyBox.TextSize = 16
 
+-- GET KEY BUTTON
+local GetKeyBtn = Instance.new("TextButton", MainFrame)
+GetKeyBtn.Text = "🌐 Get Key"
+GetKeyBtn.Position = UDim2.new(0.05, 0, 0, 95)
+GetKeyBtn.Size = UDim2.new(0.425, -5, 0, 30)
+GetKeyBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 120)
+GetKeyBtn.TextColor3 = Color3.new(1, 1, 1)
+GetKeyBtn.Font = Enum.Font.SourceSansBold
+GetKeyBtn.TextSize = 16
+
+GetKeyBtn.MouseButton1Click:Connect(function()
+	setclipboard(GETKEY_URL)
+	GetKeyBtn.Text = "📋 Copied!"
+	wait(1.5)
+	GetKeyBtn.Text = "🌐 Get Key"
+end)
+
 -- VERIFY BUTTON
 local VerifyBtn = Instance.new("TextButton", MainFrame)
 VerifyBtn.Text = "✅ Verify Key"
-VerifyBtn.Position = UDim2.new(0.05, 0, 0, 95)
-VerifyBtn.Size = UDim2.new(0.9, 0, 0, 30)
+VerifyBtn.Position = UDim2.new(0.525, 5, 0, 95)
+VerifyBtn.Size = UDim2.new(0.425, -5, 0, 30)
 VerifyBtn.BackgroundColor3 = Color3.fromRGB(50, 120, 50)
 VerifyBtn.TextColor3 = Color3.new(1, 1, 1)
 VerifyBtn.Font = Enum.Font.SourceSansBold
