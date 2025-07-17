@@ -1,163 +1,206 @@
--- 🔎 Flow's Prop Hunt
--- Script by - @Luminaprojects (RGB credit)
--- Featured ⚙️
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
 
-local players = game:GetService("Players")
-local localPlayer = players.LocalPlayer
-local runService = game:GetService("RunService")
-local uis = game:GetService("UserInputService")
-local tweenService = game:GetService("TweenService")
+-- Configuration
+local settings = {
+    TeamCheck = false,
+    Tracer = true,
+    BoxESP = true,
+    HealthBar = true,
+    WalkSpeed = 16,
+    JumpPower = 50,
+}
 
-local screenGui = Instance.new("ScreenGui", game.CoreGui)
-screenGui.Name = "FlowESP_UI"
+-- UI Setup
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "FlowESPUI"
 
-local main = Instance.new("Frame", screenGui)
-main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-main.BackgroundTransparency = 0.2
-main.BorderSizePixel = 0
-main.Position = UDim2.new(0, 50, 0, 100)
-main.Size = UDim2.new(0, 250, 0, 220)
-main.Active = true
-main.Draggable = true
+-- Draggable Frame
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 250, 0, 300)
+Main.Position = UDim2.new(0.05, 0, 0.4, 0)
+Main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Main.Active = true
+Main.Draggable = true
 
-local title = Instance.new("TextLabel", main)
-title.Text = "🔎 Flow's Prop Hunt"
-title.Font = Enum.Font.GothamBold
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextSize = 18
-title.Position = UDim2.new(0, 0, 0, 0)
-title.Size = UDim2.new(1, 0, 0, 30)
-title.BackgroundTransparency = 1
+local UICorner = Instance.new("UICorner", Main)
+UICorner.CornerRadius = UDim.new(0, 10)
 
-local subtitle = Instance.new("TextLabel", main)
-subtitle.Text = "Featured ⚙️"
-subtitle.Font = Enum.Font.Gotham
-subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
-subtitle.TextSize = 14
-subtitle.Position = UDim2.new(0, 0, 0, 30)
-subtitle.Size = UDim2.new(1, 0, 0, 20)
-subtitle.BackgroundTransparency = 1
+local Title = Instance.new("TextLabel", Main)
+Title.Text = "🔎 Flow's Prop Hunt"
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+Title.Name = "Title"
 
-local minimize = Instance.new("TextButton", main)
-minimize.Text = "-"
-minimize.Font = Enum.Font.GothamBold
-minimize.TextSize = 20
-minimize.TextColor3 = Color3.fromRGB(255, 255, 255)
-minimize.Size = UDim2.new(0, 30, 0, 30)
-minimize.Position = UDim2.new(1, -35, 0, 0)
-minimize.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-minimize.BorderSizePixel = 0
+local Subtitle = Instance.new("TextLabel", Main)
+Subtitle.Text = "Featured ⚙️"
+Subtitle.Position = UDim2.new(0, 0, 0, 30)
+Subtitle.Size = UDim2.new(1, 0, 0, 20)
+Subtitle.BackgroundTransparency = 1
+Subtitle.TextColor3 = Color3.fromRGB(180, 180, 180)
+Subtitle.Font = Enum.Font.Gotham
+Subtitle.TextSize = 12
+Subtitle.Name = "Subtitle"
 
-local content = Instance.new("Frame", main)
-content.Position = UDim2.new(0, 0, 0, 55)
-content.Size = UDim2.new(1, 0, 1, -55)
-content.BackgroundTransparency = 1
+local isMinimized = false
 
-local espToggle = Instance.new("TextButton", content)
-espToggle.Text = "ESP ON"
-espToggle.Font = Enum.Font.GothamBold
-espToggle.TextSize = 16
-espToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-espToggle.Size = UDim2.new(0.9, 0, 0, 30)
-espToggle.Position = UDim2.new(0.05, 0, 0, 10)
-espToggle.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-espToggle.BorderSizePixel = 0
+local MinimizeBtn = Instance.new("TextButton", Main)
+MinimizeBtn.Size = UDim2.new(0, 25, 0, 25)
+MinimizeBtn.Position = UDim2.new(1, -30, 0, 2)
+MinimizeBtn.Text = "-"
+MinimizeBtn.Font = Enum.Font.GothamBold
+MinimizeBtn.TextSize = 18
+MinimizeBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+MinimizeBtn.TextColor3 = Color3.new(1,1,1)
 
-local featured = Instance.new("TextLabel", content)
-featured.Text = "Health Bar ESP"
-featured.Font = Enum.Font.Gotham
-featured.TextSize = 14
-featured.TextColor3 = Color3.fromRGB(180, 180, 180)
-featured.Size = UDim2.new(1, -20, 0, 20)
-featured.Position = UDim2.new(0, 10, 0, 45)
-featured.BackgroundTransparency = 1
+-- Toggle & Slider Creation
+local ContentElements = {}
 
--- RGB credit
-local credit = Instance.new("TextLabel", screenGui)
-credit.Text = "Script by - @Luminaprojects"
-credit.Font = Enum.Font.GothamBold
-credit.TextSize = 16
-credit.Position = UDim2.new(0.5, -100, 1, -40)
-credit.Size = UDim2.new(0, 200, 0, 30)
-credit.BackgroundTransparency = 1
+local function createToggle(name, default, yPosition, callback)
+    local Toggle = Instance.new("TextButton", Main)
+    Toggle.Size = UDim2.new(0, 220, 0, 25)
+    Toggle.Position = UDim2.new(0, 15, 0, yPosition)
+    Toggle.BackgroundColor3 = default and Color3.fromRGB(70, 200, 70) or Color3.fromRGB(200, 70, 70)
+    Toggle.Text = name
+    Toggle.TextColor3 = Color3.new(1, 1, 1)
+    Toggle.Font = Enum.Font.Gotham
+    Toggle.TextSize = 14
 
--- RGB Animation
-task.spawn(function()
-	while true do
-		local hue = tick() % 5 / 5
-		local color = Color3.fromHSV(hue, 1, 1)
-		credit.TextColor3 = color
-		task.wait(0.1)
-	end
-end)
+    table.insert(ContentElements, Toggle)
 
--- ESP Logic
-local espEnabled = false
-local boxes = {}
+    local state = default
+    Toggle.MouseButton1Click:Connect(function()
+        state = not state
+        Toggle.BackgroundColor3 = state and Color3.fromRGB(70, 200, 70) or Color3.fromRGB(200, 70, 70)
+        callback(state)
+    end)
 
-local function clearESP()
-	for _, box in pairs(boxes) do
-		box:Destroy()
-	end
-	table.clear(boxes)
+    callback(default)
 end
 
+local function createSlider(name, min, max, yPosition, callback)
+    local Label = Instance.new("TextLabel", Main)
+    Label.Text = name
+    Label.Position = UDim2.new(0, 15, 0, yPosition)
+    Label.Size = UDim2.new(0, 100, 0, 20)
+    Label.TextColor3 = Color3.new(1, 1, 1)
+    Label.BackgroundTransparency = 1
+    Label.Font = Enum.Font.Gotham
+    Label.TextSize = 12
+    table.insert(ContentElements, Label)
+
+    local Slider = Instance.new("TextButton", Main)
+    Slider.Position = UDim2.new(0, 120, 0, yPosition)
+    Slider.Size = UDim2.new(0, 100, 0, 20)
+    Slider.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    Slider.Text = tostring(settings[name])
+    Slider.TextColor3 = Color3.new(1, 1, 1)
+    Slider.Font = Enum.Font.Gotham
+    Slider.TextSize = 12
+    table.insert(ContentElements, Slider)
+
+    Slider.MouseButton1Click:Connect(function()
+        local value = tonumber(Slider.Text)
+        value = value + 10
+        if value > max then value = min end
+        Slider.Text = tostring(value)
+        callback(value)
+    end)
+
+    callback(settings[name])
+end
+
+-- Apply Settings
+createToggle("ESP Box", true, 60, function(v) settings.BoxESP = v end)
+createToggle("ESP Tracer", true, 95, function(v) settings.Tracer = v end)
+createToggle("Health Bar", true, 130, function(v) settings.HealthBar = v end)
+createToggle("Team Check", false, 165, function(v) settings.TeamCheck = v end)
+
+createSlider("WalkSpeed", 16, 100, 200, function(v)
+    settings.WalkSpeed = v
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.WalkSpeed = v
+    end
+end)
+
+createSlider("JumpPower", 50, 100, 235, function(v)
+    settings.JumpPower = v
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.JumpPower = v
+    end
+end)
+
+-- Health Bar & ESP
 local function createESP(player)
-	if player == localPlayer then return end
-	local char = player.Character
-	if not (char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Humanoid")) then return end
+    local root = player.Character:FindFirstChild("HumanoidRootPart")
+    local hum = player.Character:FindFirstChild("Humanoid")
+    if not root or not hum then return end
 
-	local box = Instance.new("BillboardGui")
-	box.Adornee = char.HumanoidRootPart
-	box.AlwaysOnTop = true
-	box.Size = UDim2.new(4, 0, 5, 0)
-	box.Name = player.Name.."_ESP"
-	box.Parent = screenGui
+    local Billboard = Instance.new("BillboardGui", root)
+    Billboard.Adornee = root
+    Billboard.Size = UDim2.new(4, 0, 5, 0)
+    Billboard.AlwaysOnTop = true
+    Billboard.Name = "ESPBox"
 
-	local healthBar = Instance.new("Frame", box)
-	healthBar.Size = UDim2.new(0.1, 0, 1, 0)
-	healthBar.Position = UDim2.new(1, 0, 0, 0)
-	healthBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    local BoxFrame = Instance.new("Frame", Billboard)
+    BoxFrame.Size = UDim2.new(1, 0, 1, 0)
+    BoxFrame.BackgroundTransparency = 1
+    BoxFrame.BorderSizePixel = 2
+    BoxFrame.BorderColor3 = Color3.new(1, 1, 1)
 
-	boxes[player] = box
-
-	runService.RenderStepped:Connect(function()
-		if espEnabled and player.Character and player.Character:FindFirstChild("Humanoid") then
-			local hp = player.Character.Humanoid.Health / player.Character.Humanoid.MaxHealth
-			healthBar.Size = UDim2.new(0.1, 0, hp, 0)
-			healthBar.Position = UDim2.new(1, 0, 1 - hp, 0)
-		end
-	end)
+    local HealthBar = Instance.new("Frame", Billboard)
+    HealthBar.Name = "HealthBar"
+    HealthBar.Size = UDim2.new(0.1, 0, 1, 0)
+    HealthBar.Position = UDim2.new(-0.15, 0, 0, 0)
+    HealthBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 end
 
 local function updateESP()
-	clearESP()
-	for _, plr in ipairs(players:GetPlayers()) do
-		if plr.Team ~= localPlayer.Team then
-			createESP(plr)
-		end
-	end
+    for _, v in pairs(Players:GetPlayers()) do
+        if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+            if settings.TeamCheck and v.Team == LocalPlayer.Team then continue end
+            if not v.Character:FindFirstChild("ESPBox") then
+                createESP(v)
+            end
+
+            local esp = v.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("ESPBox")
+            local hpbar = esp and esp:FindFirstChild("HealthBar")
+            if esp and hpbar and settings.HealthBar then
+                local hum = v.Character:FindFirstChild("Humanoid")
+                if hum then
+                    local hpRatio = hum.Health / hum.MaxHealth
+                    hpbar.Size = UDim2.new(0.1, 0, hpRatio, 0)
+                    hpbar.Position = UDim2.new(-0.15, 0, 1 - hpRatio, 0)
+                    hpbar.Visible = true
+                end
+            elseif hpbar then
+                hpbar.Visible = false
+            end
+        end
+    end
 end
 
-espToggle.MouseButton1Click:Connect(function()
-	espEnabled = not espEnabled
-	espToggle.Text = espEnabled and "ESP OFF" or "ESP ON"
-	if espEnabled then
-		updateESP()
-	else
-		clearESP()
-	end
-end)
+-- Update ESP every frame
+RunService.RenderStepped:Connect(updateESP)
 
--- Minimize
-local minimized = false
-minimize.MouseButton1Click:Connect(function()
-	if not minimized then
-		main:TweenSize(UDim2.new(0, 250, 0, 40), "Out", "Quad", 0.25, true)
-		content.Visible = false
-	else
-		main:TweenSize(UDim2.new(0, 250, 0, 220), "Out", "Quad", 0.25, true)
-		content.Visible = true
-	end
-	minimized = not minimized
+-- MINIMIZE LOGIC
+MinimizeBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        for _, v in pairs(ContentElements) do
+            v.Visible = false
+        end
+        Main.Size = UDim2.new(0, 250, 0, 35)
+        MinimizeBtn.Text = "+"
+    else
+        for _, v in pairs(ContentElements) do
+            v.Visible = true
+        end
+        Main.Size = UDim2.new(0, 250, 0, 300)
+        MinimizeBtn.Text = "-"
+    end
 end)
