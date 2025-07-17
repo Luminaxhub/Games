@@ -29,7 +29,7 @@ Frame.Draggable = true
 -- Title
 local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(1, 0, 0, 30)
-Title.Text = "🔎 Flow's ESP UI"
+Title.Text = "🔎 Flow's Prop Hunt"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 16
