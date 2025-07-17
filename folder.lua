@@ -1,191 +1,179 @@
--- 🔎 Flow's Prop Hunt | ESP UI + GetKey + Credit
+-- Flow's Prop Hunt ESP UI with GetKey, Team Check, and Credit (RGB)
+-- Script by - @Luminaprojects
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 
--- UI Setup
-local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+-- Variables
+local ESPEnabled = false
+local TeamCheckEnabled = false
+local drawings = {}
+
+-- GetKey UI
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 ScreenGui.Name = "FlowESPUI"
-local Frame = Instance.new("Frame", ScreenGui)
-Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-Frame.Position = UDim2.new(0.05, 0, 0.1, 0)
-Frame.Size = UDim2.new(0, 220, 0, 180)
-Frame.Active = true
-Frame.Draggable = true
-Frame.BorderSizePixel = 0
 
-local Title = Instance.new("TextLabel", Frame)
-Title.Text = "🔎 Flow's Prop Hunt"
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.BackgroundTransparency = 1
-Title.TextColor3 = Color3.new(1, 1, 1)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 18
-
--- Credit RGB
-local Credit = Instance.new("TextLabel", Frame)
-Credit.Position = UDim2.new(0, 0, 1, -20)
-Credit.Size = UDim2.new(1, 0, 0, 20)
-Credit.BackgroundTransparency = 1
-Credit.Text = "Script by - @Luminaprojects"
-Credit.Font = Enum.Font.Gotham
-Credit.TextSize = 14
-
-local function updateRGB()
-	local t = tick()
-	while Credit and Credit.Parent do
-		local r = math.sin(tick()) * 0.5 + 0.5
-		local g = math.sin(tick() + 2) * 0.5 + 0.5
-		local b = math.sin(tick() + 4) * 0.5 + 0.5
-		Credit.TextColor3 = Color3.new(r, g, b)
-		RunService.RenderStepped:Wait()
-	end
+local function createFrame(name, size, pos, parent)
+    local f = Instance.new("Frame", parent)
+    f.Name = name
+    f.Size = size
+    f.Position = pos
+    f.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    f.BorderSizePixel = 0
+    f.BackgroundTransparency = 0.3
+    return f
 end
-coroutine.wrap(updateRGB)()
+
+local function createButton(text, pos, parent)
+    local b = Instance.new("TextButton", parent)
+    b.Size = UDim2.new(0, 120, 0, 30)
+    b.Position = pos
+    b.Text = text
+    b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    b.TextColor3 = Color3.new(1,1,1)
+    b.BorderSizePixel = 0
+    return b
+end
+
+local function createLabel(text, size, pos, parent)
+    local l = Instance.new("TextLabel", parent)
+    l.Size = size
+    l.Position = pos
+    l.Text = text
+    l.BackgroundTransparency = 1
+    l.TextColor3 = Color3.new(1,1,1)
+    l.TextScaled = true
+    l.Font = Enum.Font.SourceSansBold
+    return l
+end
+
+-- Main UI Frame
+local Frame = createFrame("MainFrame", UDim2.new(0, 300, 0, 200), UDim2.new(0.5, -150, 0.5, -100), ScreenGui)
+Frame.Visible = false
+
+-- Title + Credit
+createLabel("🔎 Flow's Prop Hunt", UDim2.new(1, 0, 0, 30), UDim2.new(0, 0, 0, 0), Frame)
+local rgbCredit = createLabel("Script by - @Luminaprojects", UDim2.new(1, 0, 0, 20), UDim2.new(0, 0, 1, -20), Frame)
+
+-- ESP Toggle
+local ToggleESP = createButton("ESP: OFF", UDim2.new(0, 20, 0, 40), Frame)
+ToggleESP.MouseButton1Click:Connect(function()
+    ESPEnabled = not ESPEnabled
+    ToggleESP.Text = ESPEnabled and "ESP: ON" or "ESP: OFF"
+end)
+
+-- Team Check Toggle
+local ToggleTeamCheck = createButton("TEAM CHECK: OFF", UDim2.new(0, 160, 0, 40), Frame)
+ToggleTeamCheck.MouseButton1Click:Connect(function()
+    TeamCheckEnabled = not TeamCheckEnabled
+    ToggleTeamCheck.Text = TeamCheckEnabled and "TEAM CHECK: ON" or "TEAM CHECK: OFF"
+end)
 
 -- Minimize Button
-local MinBtn = Instance.new("TextButton", Frame)
+local MinBtn = createButton("-", UDim2.new(1, -35, 0, 5), Frame)
+MinBtn.Size = UDim2.new(0, 30, 0, 20)
 MinBtn.Text = "-"
-MinBtn.Size = UDim2.new(0, 25, 0, 25)
-MinBtn.Position = UDim2.new(1, -30, 0, 5)
-MinBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-MinBtn.TextColor3 = Color3.new(1, 1, 1)
-MinBtn.Font = Enum.Font.GothamBold
-MinBtn.TextSize = 18
-
-local Minimized = false
 MinBtn.MouseButton1Click:Connect(function()
-	Minimized = not Minimized
-	for _, child in pairs(Frame:GetChildren()) do
-		if child:IsA("TextButton") or child:IsA("TextLabel") then
-			if child ~= Title and child ~= MinBtn and child ~= Credit then
-				child.Visible = not Minimized
-			end
-		end
-	end
+    Frame.Visible = not Frame.Visible
 end)
 
--- GetKey + Verification
-local Key = ""
-local Verified = false
-
-local KeyBox = Instance.new("TextBox", Frame)
-KeyBox.PlaceholderText = "Enter Key Here"
-KeyBox.Size = UDim2.new(1, -20, 0, 30)
-KeyBox.Position = UDim2.new(0, 10, 0, 40)
-KeyBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-KeyBox.TextColor3 = Color3.new(1,1,1)
-KeyBox.Text = ""
-KeyBox.Font = Enum.Font.Gotham
-KeyBox.TextSize = 14
-
-local VerifyBtn = Instance.new("TextButton", Frame)
-VerifyBtn.Text = "Verify Key"
-VerifyBtn.Size = UDim2.new(1, -20, 0, 25)
-VerifyBtn.Position = UDim2.new(0, 10, 0, 75)
-VerifyBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-VerifyBtn.TextColor3 = Color3.new(1,1,1)
-VerifyBtn.Font = Enum.Font.GothamBold
-VerifyBtn.TextSize = 14
-
-local Status = Instance.new("TextLabel", Frame)
-Status.Size = UDim2.new(1, -20, 0, 20)
-Status.Position = UDim2.new(0, 10, 0, 105)
-Status.BackgroundTransparency = 1
-Status.TextColor3 = Color3.new(1,0,0)
-Status.Font = Enum.Font.Gotham
-Status.TextSize = 14
-Status.Text = ""
-
-VerifyBtn.MouseButton1Click:Connect(function()
-	local inputKey = KeyBox.Text
-	local success, response = pcall(function()
-		return game:HttpGet("https://get-key-luminakey.vercel.app/api/verify?key="..inputKey)
-	end)
-	if success and response:lower():find("success") then
-		Verified = true
-		Status.Text = "✅ Verified!"
-		Status.TextColor3 = Color3.fromRGB(0,255,0)
-	else
-		Status.Text = "❌ Invalid Key"
-		Status.TextColor3 = Color3.fromRGB(255,0,0)
-	end
+-- Dragging
+local dragging, offset
+Frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        offset = input.Position - Frame.Position
+    end
+end)
+Frame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+end)
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        Frame.Position = UDim2.new(0, input.Position.X - offset.X.Offset, 0, input.Position.Y - offset.Y.Offset)
+    end
 end)
 
--- ESP Feature
-local ToggleESP = Instance.new("TextButton", Frame)
-ToggleESP.Text = "ESP [OFF]"
-ToggleESP.Size = UDim2.new(1, -20, 0, 30)
-ToggleESP.Position = UDim2.new(0, 10, 0, 135)
-ToggleESP.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-ToggleESP.TextColor3 = Color3.new(1,1,1)
-ToggleESP.Font = Enum.Font.GothamBold
-ToggleESP.TextSize = 16
-
-local ESP_Enabled = false
-ToggleESP.MouseButton1Click:Connect(function()
-	if Verified then
-		ESP_Enabled = not ESP_Enabled
-		ToggleESP.Text = "ESP ["..(ESP_Enabled and "ON" or "OFF").."]"
-	end
+-- RGB Credit Loop
+task.spawn(function()
+    while true do
+        for hue = 0, 1, 0.01 do
+            rgbCredit.TextColor3 = Color3.fromHSV(hue, 1, 1)
+            task.wait(0.05)
+        end
+    end
 end)
 
--- Drawing ESP
-local function createESP(plr)
-	local box = Drawing.new("Square")
-	box.Color = Color3.fromRGB(255, 255, 255)
-	box.Thickness = 1.5
-	box.Transparency = 1
-	box.Filled = false
+-- ESP Loop
+RunService.RenderStepped:Connect(function()
+    for _, v in pairs(drawings) do
+        for _, d in pairs(v) do
+            d.Visible = false
+        end
+    end
+    if not ESPEnabled then return end
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
+            if TeamCheckEnabled and player.Team == LocalPlayer.Team then
+                continue
+            end
+            local root = player.Character.HumanoidRootPart
+            local pos, onscreen = workspace.CurrentCamera:WorldToViewportPoint(root.Position)
+            if not onscreen then continue end
+            local head = player.Character:FindFirstChild("Head")
+            local distance = (root.Position - workspace.CurrentCamera.CFrame.Position).Magnitude
+            local size = math.clamp(3000 / distance, 50, 300)
+            local box = drawings[player] and drawings[player].Box or Drawing.new("Square")
+            local health = drawings[player] and drawings[player].Health or Drawing.new("Square")
+            box.Size = Vector2.new(size / 2, size)
+            box.Position = Vector2.new(pos.X - size / 4, pos.Y - size / 2)
+            box.Thickness = 1.5
+            box.Color = Color3.new(1,1,1)
+            box.Transparency = 1
+            box.Visible = true
+            box.Filled = false
+            health.Size = Vector2.new(4, (player.Character.Humanoid.Health/player.Character.Humanoid.MaxHealth) * size)
+            health.Position = Vector2.new(pos.X - size / 4 - 6, pos.Y - size / 2 + (size - health.Size.Y))
+            health.Color = Color3.fromRGB(0,255,0)
+            health.Visible = true
+            health.Filled = true
+            drawings[player] = {Box = box, Health = health}
+        else
+            if drawings[player] then
+                for _, d in pairs(drawings[player]) do
+                    d.Visible = false
+                end
+            end
+        end
+    end
+end)
 
-	local healthBar = Drawing.new("Square")
-	healthBar.Filled = true
-	healthBar.Thickness = 0
-	healthBar.Transparency = 1
-	healthBar.Color = Color3.fromRGB(0,255,0)
+-- GetKey UI
+local KeyFrame = createFrame("KeyUI", UDim2.new(0, 250, 0, 150), UDim2.new(0.5, -125, 0.5, -75), ScreenGui)
+local keyBox = Instance.new("TextBox", KeyFrame)
+keyBox.Size = UDim2.new(0, 200, 0, 30)
+keyBox.Position = UDim2.new(0, 25, 0, 50)
+keyBox.PlaceholderText = "Enter Key Here"
+keyBox.Text = ""
+keyBox.TextScaled = true
+keyBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+keyBox.TextColor3 = Color3.new(1,1,1)
+keyBox.BorderSizePixel = 0
 
-	local function update()
-		RunService.RenderStepped:Connect(function()
-			if not ESP_Enabled or not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") or not plr.Character:FindFirstChild("Humanoid") or plr.Character.Humanoid.Health <= 0 then
-				box.Visible = false
-				healthBar.Visible = false
-				return
-			end
-			local pos, onscreen = Camera:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
-			if onscreen then
-				local scale = 3
-				local size = Vector2.new(45, 60)
-				local topLeft = Vector2.new(pos.X - size.X/2, pos.Y - size.Y/2)
-				box.Size = size
-				box.Position = topLeft
-				box.Visible = true
+local getKeyBtn = createButton("Get Key", UDim2.new(0, 65, 0, 90), KeyFrame)
+getKeyBtn.TextColor3 = Color3.fromRGB(255,255,0)
+getKeyBtn.MouseButton1Click:Connect(function()
+    setclipboard("https://get-key-luminakey.vercel.app/")
+end)
 
-				-- Health bar
-				local hp = plr.Character.Humanoid.Health / plr.Character.Humanoid.MaxHealth
-				healthBar.Size = Vector2.new(4, size.Y * hp)
-				healthBar.Position = Vector2.new(topLeft.X - 6, topLeft.Y + (size.Y * (1 - hp)))
-				healthBar.Color = Color3.fromRGB(255 - hp*255, hp*255, 0)
-				healthBar.Visible = true
-			else
-				box.Visible = false
-				healthBar.Visible = false
-			end
-		end)
-	end
-	coroutine.wrap(update)()
-end
-
-for _, plr in pairs(Players:GetPlayers()) do
-	if plr ~= LocalPlayer then
-		createESP(plr)
-	end
-end
-
-Players.PlayerAdded:Connect(function(plr)
-	plr.CharacterAdded:Connect(function()
-		wait(1)
-		createESP(plr)
-	end)
+local confirmBtn = createButton("Submit", UDim2.new(0, 65, 0, 120), KeyFrame)
+confirmBtn.MouseButton1Click:Connect(function()
+    if keyBox.Text == "LUMINAKEY_pxs0up8r2bh2j19" then
+        KeyFrame.Visible = false
+        Frame.Visible = true
+    else
+        keyBox.Text = "Invalid Key!"
+    end
 end)
