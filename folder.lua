@@ -1,244 +1,163 @@
--- Flow's Prop Hunt UI with ESP, Key, Walkspeed, JumpPower
+-- 🔎 Flow's Prop Hunt
+-- Script by - @Luminaprojects (RGB credit)
+-- Featured ⚙️
+
 local players = game:GetService("Players")
 local localPlayer = players.LocalPlayer
 local runService = game:GetService("RunService")
 local uis = game:GetService("UserInputService")
 local tweenService = game:GetService("TweenService")
 
-local HttpService = game:GetService("HttpService")
-local keyValid = false
-local key = "LUMINAKEY_pxs0up8r2bh2j19" -- Key otomatis
-
--- UI
 local screenGui = Instance.new("ScreenGui", game.CoreGui)
-screenGui.Name = "FlowESPUI"
-screenGui.ResetOnSpawn = false
+screenGui.Name = "FlowESP_UI"
 
 local main = Instance.new("Frame", screenGui)
-main.Size = UDim2.new(0, 270, 0, 320)
-main.Position = UDim2.new(0.5, -135, 0.5, -160)
-main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+main.BackgroundTransparency = 0.2
 main.BorderSizePixel = 0
+main.Position = UDim2.new(0, 50, 0, 100)
+main.Size = UDim2.new(0, 250, 0, 220)
 main.Active = true
 main.Draggable = true
 
 local title = Instance.new("TextLabel", main)
 title.Text = "🔎 Flow's Prop Hunt"
-title.Size = UDim2.new(1, 0, 0, 30)
-title.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.Font = Enum.Font.GothamBold
-title.TextSize = 16
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextSize = 18
+title.Position = UDim2.new(0, 0, 0, 0)
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundTransparency = 1
 
-local credit = Instance.new("TextLabel", main)
+local subtitle = Instance.new("TextLabel", main)
+subtitle.Text = "Featured ⚙️"
+subtitle.Font = Enum.Font.Gotham
+subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+subtitle.TextSize = 14
+subtitle.Position = UDim2.new(0, 0, 0, 30)
+subtitle.Size = UDim2.new(1, 0, 0, 20)
+subtitle.BackgroundTransparency = 1
+
+local minimize = Instance.new("TextButton", main)
+minimize.Text = "-"
+minimize.Font = Enum.Font.GothamBold
+minimize.TextSize = 20
+minimize.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimize.Size = UDim2.new(0, 30, 0, 30)
+minimize.Position = UDim2.new(1, -35, 0, 0)
+minimize.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+minimize.BorderSizePixel = 0
+
+local content = Instance.new("Frame", main)
+content.Position = UDim2.new(0, 0, 0, 55)
+content.Size = UDim2.new(1, 0, 1, -55)
+content.BackgroundTransparency = 1
+
+local espToggle = Instance.new("TextButton", content)
+espToggle.Text = "ESP ON"
+espToggle.Font = Enum.Font.GothamBold
+espToggle.TextSize = 16
+espToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+espToggle.Size = UDim2.new(0.9, 0, 0, 30)
+espToggle.Position = UDim2.new(0.05, 0, 0, 10)
+espToggle.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+espToggle.BorderSizePixel = 0
+
+local featured = Instance.new("TextLabel", content)
+featured.Text = "Health Bar ESP"
+featured.Font = Enum.Font.Gotham
+featured.TextSize = 14
+featured.TextColor3 = Color3.fromRGB(180, 180, 180)
+featured.Size = UDim2.new(1, -20, 0, 20)
+featured.Position = UDim2.new(0, 10, 0, 45)
+featured.BackgroundTransparency = 1
+
+-- RGB credit
+local credit = Instance.new("TextLabel", screenGui)
 credit.Text = "Script by - @Luminaprojects"
-credit.Position = UDim2.new(0, 0, 1, -20)
-credit.Size = UDim2.new(1, 0, 0, 20)
+credit.Font = Enum.Font.GothamBold
+credit.TextSize = 16
+credit.Position = UDim2.new(0.5, -100, 1, -40)
+credit.Size = UDim2.new(0, 200, 0, 30)
 credit.BackgroundTransparency = 1
-credit.Font = Enum.Font.GothamSemibold
-credit.TextSize = 14
 
--- RGB Credit
-spawn(function()
+-- RGB Animation
+task.spawn(function()
 	while true do
-		for hue = 0, 255, 4 do
-			credit.TextColor3 = Color3.fromHSV(hue / 255, 1, 1)
-			wait(0.03)
-		end
+		local hue = tick() % 5 / 5
+		local color = Color3.fromHSV(hue, 1, 1)
+		credit.TextColor3 = color
+		task.wait(0.1)
 	end
 end)
 
--- Minimize Button
-local min = Instance.new("TextButton", title)
-min.Text = "-"
-min.Font = Enum.Font.GothamBold
-min.TextSize = 18
-min.Size = UDim2.new(0, 30, 0, 30)
-min.Position = UDim2.new(1, -30, 0, 0)
-min.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-min.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-local contentVisible = true
-min.MouseButton1Click:Connect(function()
-	contentVisible = not contentVisible
-	for _, v in ipairs(main:GetChildren()) do
-		if v:IsA("TextButton") or v:IsA("TextLabel") then
-			if v ~= title and v ~= min and v ~= credit then
-				v.Visible = contentVisible
-			end
-		end
-	end
-end)
-
--- Toggle UI Elements
-local y = 35
-function addToggle(name, callback)
-	local toggle = Instance.new("TextButton", main)
-	toggle.Text = "OFF - " .. name
-	toggle.Size = UDim2.new(1, 0, 0, 30)
-	toggle.Position = UDim2.new(0, 0, 0, y)
-	toggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-	toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-	toggle.Font = Enum.Font.Gotham
-	toggle.TextSize = 14
-	y = y + 35
-
-	local state = false
-	toggle.MouseButton1Click:Connect(function()
-		state = not state
-		toggle.Text = (state and "ON" or "OFF") .. " - " .. name
-		callback(state)
-	end)
-end
-
--- Sliders
-function addSlider(name, min, max, default, callback)
-	local label = Instance.new("TextLabel", main)
-	label.Text = name .. ": " .. tostring(default)
-	label.Size = UDim2.new(1, 0, 0, 20)
-	label.Position = UDim2.new(0, 0, 0, y)
-	label.BackgroundTransparency = 1
-	label.TextColor3 = Color3.fromRGB(255, 255, 255)
-	label.Font = Enum.Font.Gotham
-	label.TextSize = 14
-
-	y = y + 20
-
-	local slider = Instance.new("TextButton", main)
-	slider.Size = UDim2.new(1, 0, 0, 20)
-	slider.Position = UDim2.new(0, 0, 0, y)
-	slider.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-	slider.Text = ""
-	y = y + 25
-
-	local fill = Instance.new("Frame", slider)
-	fill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-	fill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
-	fill.BorderSizePixel = 0
-
-	local dragging = false
-
-	slider.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-		end
-	end)
-
-	uis.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = false
-		end
-	end)
-
-	uis.InputChanged:Connect(function(input)
-		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			local rel = input.Position.X - slider.AbsolutePosition.X
-			local percent = math.clamp(rel / slider.AbsoluteSize.X, 0, 1)
-			fill.Size = UDim2.new(percent, 0, 1, 0)
-			local value = math.floor(min + (max - min) * percent)
-			label.Text = name .. ": " .. tostring(value)
-			callback(value)
-		end
-	end)
-end
-
--- Walkspeed & Jumppower
-addSlider("Walkspeed", 16, 100, 16, function(val)
-	localPlayer.Character.Humanoid.WalkSpeed = val
-end)
-
-addSlider("JumpPower", 50, 100, 50, function(val)
-	localPlayer.Character.Humanoid.JumpPower = val
-end)
-
--- ESP System
+-- ESP Logic
 local espEnabled = false
-local teamCheck = false
-local tracerEnabled = false
-local healthEnabled = false
+local boxes = {}
 
-function createESP(plr)
-	if plr == localPlayer then return end
-	local char = plr.Character
-	if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+local function clearESP()
+	for _, box in pairs(boxes) do
+		box:Destroy()
+	end
+	table.clear(boxes)
+end
 
-	local box = Drawing.new("Square")
-	box.Color = Color3.fromRGB(255, 255, 255)
-	box.Thickness = 1
-	box.Transparency = 1
-	box.Filled = false
+local function createESP(player)
+	if player == localPlayer then return end
+	local char = player.Character
+	if not (char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Humanoid")) then return end
 
-	local tracer = Drawing.new("Line")
-	tracer.Color = Color3.fromRGB(255, 255, 255)
-	tracer.Thickness = 1
+	local box = Instance.new("BillboardGui")
+	box.Adornee = char.HumanoidRootPart
+	box.AlwaysOnTop = true
+	box.Size = UDim2.new(4, 0, 5, 0)
+	box.Name = player.Name.."_ESP"
+	box.Parent = screenGui
 
-	local healthbar = Drawing.new("Line")
-	healthbar.Color = Color3.fromRGB(0, 255, 0)
-	healthbar.Thickness = 2
+	local healthBar = Instance.new("Frame", box)
+	healthBar.Size = UDim2.new(0.1, 0, 1, 0)
+	healthBar.Position = UDim2.new(1, 0, 0, 0)
+	healthBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+
+	boxes[player] = box
 
 	runService.RenderStepped:Connect(function()
-		local char = plr.Character
-		if not char or not char:FindFirstChild("HumanoidRootPart") or not espEnabled then
-			box.Visible = false
-			tracer.Visible = false
-			healthbar.Visible = false
-			return
-		end
-
-		if teamCheck and plr.Team == localPlayer.Team then
-			box.Visible = false
-			tracer.Visible = false
-			healthbar.Visible = false
-			return
-		end
-
-		local root = char:FindFirstChild("HumanoidRootPart")
-		local hum = char:FindFirstChildOfClass("Humanoid")
-		if root and hum and hum.Health > 0 then
-			local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(root.Position)
-			if visible then
-				local sizeY = 100
-				local sizeX = 50
-				box.Size = Vector2.new(sizeX, sizeY)
-				box.Position = Vector2.new(pos.X - sizeX / 2, pos.Y - sizeY / 1.5)
-				box.Visible = true
-
-				if tracerEnabled then
-					tracer.From = Vector2.new(pos.X, pos.Y)
-					tracer.To = Vector2.new(pos.X, workspace.CurrentCamera.ViewportSize.Y)
-					tracer.Visible = true
-				else
-					tracer.Visible = false
-				end
-
-				if healthEnabled then
-					local health = hum.Health / hum.MaxHealth
-					healthbar.From = Vector2.new(pos.X - 30, pos.Y - 50)
-					healthbar.To = Vector2.new(pos.X - 30, pos.Y - 50 + (1 - health) * 100)
-					healthbar.Visible = true
-				else
-					healthbar.Visible = false
-				end
-			else
-				box.Visible = false
-				tracer.Visible = false
-				healthbar.Visible = false
-			end
-		else
-			box.Visible = false
-			tracer.Visible = false
-			healthbar.Visible = false
+		if espEnabled and player.Character and player.Character:FindFirstChild("Humanoid") then
+			local hp = player.Character.Humanoid.Health / player.Character.Humanoid.MaxHealth
+			healthBar.Size = UDim2.new(0.1, 0, hp, 0)
+			healthBar.Position = UDim2.new(1, 0, 1 - hp, 0)
 		end
 	end)
 end
 
-players.PlayerAdded:Connect(createESP)
-for _, plr in pairs(players:GetPlayers()) do
-	createESP(plr)
+local function updateESP()
+	clearESP()
+	for _, plr in ipairs(players:GetPlayers()) do
+		if plr.Team ~= localPlayer.Team then
+			createESP(plr)
+		end
+	end
 end
 
--- Add toggles
-addToggle("ESP", function(v) espEnabled = v end)
-addToggle("Tracer", function(v) tracerEnabled = v end)
-addToggle("Health Bar", function(v) healthEnabled = v end)
-addToggle("Team Check", function(v) teamCheck = v end)
+espToggle.MouseButton1Click:Connect(function()
+	espEnabled = not espEnabled
+	espToggle.Text = espEnabled and "ESP OFF" or "ESP ON"
+	if espEnabled then
+		updateESP()
+	else
+		clearESP()
+	end
+end)
+
+-- Minimize
+local minimized = false
+minimize.MouseButton1Click:Connect(function()
+	if not minimized then
+		main:TweenSize(UDim2.new(0, 250, 0, 40), "Out", "Quad", 0.25, true)
+		content.Visible = false
+	else
+		main:TweenSize(UDim2.new(0, 250, 0, 220), "Out", "Quad", 0.25, true)
+		content.Visible = true
+	end
+	minimized = not minimized
+end)
