@@ -1,174 +1,208 @@
--- FlowESP UI Full with Hollow Box, Tracer, Health Bar, Name + Distance, Team Check, RGB Credit
-local players = game:GetService("Players")
-local runService = game:GetService("RunService")
-local localPlayer = players.LocalPlayer
+-- 🔎 Flow's ESP UI Script v1.0
+-- Script by - @Luminaprojects (RGB Credit)
 
-local espEnabled = false
-local espFolder = Instance.new("Folder", game.CoreGui)
-espFolder.Name = "FlowESP_Objects"
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local EspEnabled = false
+local TracerEnabled = false
+local BoxEnabled = false
+local HealthBarEnabled = false
+local NameTagEnabled = false
+local TeamCheck = true
 
--- UI Setup (minimal, retain your style)
-local screenGui = Instance.new("ScreenGui", game.CoreGui)
-screenGui.ResetOnSpawn = false
+-- UI
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "FlowESP_UI"
+
+-- Frame
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 250, 0, 220)
+Frame.Position = UDim2.new(0.02, 0, 0.2, 0)
+Frame.BackgroundTransparency = 0.25
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Draggable = true
+
+-- Title
+local Title = Instance.new("TextLabel", Frame)
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Text = "🔎 Flow's ESP UI"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+Title.BackgroundTransparency = 1
+
+-- Toggle Button Generator
+local function createToggle(name, position, callback)
+	local btn = Instance.new("TextButton", Frame)
+	btn.Size = UDim2.new(1, -20, 0, 30)
+	btn.Position = UDim2.new(0, 10, 0, position)
+	btn.Text = name .. ": OFF"
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.Font = Enum.Font.Gotham
+	btn.TextSize = 14
+	btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	btn.BorderSizePixel = 0
+	btn.MouseButton1Click:Connect(function()
+		local state = callback()
+		btn.Text = name .. ": " .. (state and "ON" or "OFF")
+	end)
+end
 
 -- Minimize Button
-local toggleFrame = Instance.new("Frame", screenGui)
-toggleFrame.Size = UDim2.new(0, 200, 0, 30)
-toggleFrame.Position = UDim2.new(0.5, -100, 0, 0)
-toggleFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-toggleFrame.BorderSizePixel = 0
-
-local minimize = Instance.new("TextButton", toggleFrame)
-minimize.Size = UDim2.new(0, 30, 0, 30)
-minimize.Position = UDim2.new(1, -30, 0, 0)
+local minimize = Instance.new("TextButton", Frame)
 minimize.Text = "-"
-minimize.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+minimize.Font = Enum.Font.GothamBold
+minimize.TextSize = 20
+minimize.Size = UDim2.new(0, 30, 0, 30)
+minimize.Position = UDim2.new(1, -35, 0, 0)
+minimize.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+minimize.TextColor3 = Color3.new(1, 1, 1)
+minimize.BorderSizePixel = 0
 
-local espToggle = Instance.new("TextButton", toggleFrame)
-espToggle.Size = UDim2.new(0, 100, 0, 30)
-espToggle.Position = UDim2.new(0, 5, 0, 0)
-espToggle.Text = "ESP: OFF"
-espToggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+local contentVisible = true
+minimize.MouseButton1Click:Connect(function()
+	contentVisible = not contentVisible
+	for _, child in ipairs(Frame:GetChildren()) do
+		if child:IsA("TextButton") and child ~= minimize then
+			child.Visible = contentVisible
+		end
+	end
+end)
 
--- RGB credit text
-local credit = Instance.new("TextLabel", screenGui)
-credit.Size = UDim2.new(0, 400, 0, 30)
-credit.Position = UDim2.new(0.5, -200, 1, -40)
+-- Toggles
+createToggle("ESP Box", 40, function()
+	BoxEnabled = not BoxEnabled
+	return BoxEnabled
+end)
+createToggle("Tracer", 75, function()
+	TracerEnabled = not TracerEnabled
+	return TracerEnabled
+end)
+createToggle("Health Bar", 110, function()
+	HealthBarEnabled = not HealthBarEnabled
+	return HealthBarEnabled
+end)
+createToggle("Name + Distance", 145, function()
+	NameTagEnabled = not NameTagEnabled
+	return NameTagEnabled
+end)
+createToggle("Team Check", 180, function()
+	TeamCheck = not TeamCheck
+	return TeamCheck
+end)
+
+-- RGB Credit
+local credit = Instance.new("TextLabel", ScreenGui)
 credit.Text = "Script by - @Luminaprojects"
-credit.TextScaled = true
+credit.Position = UDim2.new(0.5, -100, 1, -30)
+credit.Size = UDim2.new(0, 200, 0, 20)
 credit.BackgroundTransparency = 1
-credit.Font = Enum.Font.SourceSansBold
-credit.TextColor3 = Color3.new(1,0,0)
+credit.TextColor3 = Color3.new(1, 0, 0)
+credit.Font = Enum.Font.GothamBold
+credit.TextSize = 14
 
--- Animate RGB text
-spawn(function()
+-- RGB Effect
+task.spawn(function()
 	while true do
 		for i = 0, 1, 0.01 do
 			credit.TextColor3 = Color3.fromHSV(i, 1, 1)
-			wait(0.05)
+			task.wait(0.03)
 		end
 	end
 end)
 
--- Clear ESP
-local function clearESP()
-	for _, v in pairs(espFolder:GetChildren()) do
-		v:Destroy()
-	end
-end
-
--- Create ESP for a player
-local function createESP(plr)
-	if plr == localPlayer then return end
-	if plr.Team == localPlayer.Team then return end
-	local char = plr.Character
-	if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-
-	local box = Drawing.new("Square")
-	box.Thickness = 1
-	box.Transparency = 1
-	box.Color = Color3.fromRGB(255, 255, 255)
-	box.Filled = false
-
+-- ESP Drawing
+local function DrawESP(player)
+	local espBox = Drawing.new("Square")
 	local tracer = Drawing.new("Line")
-	tracer.Thickness = 1
-	tracer.Transparency = 1
-	tracer.Color = Color3.fromRGB(255, 255, 255)
-
 	local nameTag = Drawing.new("Text")
-	nameTag.Size = 16
-	nameTag.Color = Color3.fromRGB(255, 255, 255)
+	local healthBar = Drawing.new("Line")
+
+	espBox.Thickness = 2
+	espBox.Color = Color3.fromRGB(255, 255, 255)
+	espBox.Transparency = 1
+	espBox.Visible = false
+	espBox.Filled = false
+
+	tracer.Thickness = 1
+	tracer.Color = Color3.fromRGB(255, 255, 255)
+	tracer.Transparency = 1
+	tracer.Visible = false
+
+	nameTag.Size = 13
 	nameTag.Center = true
 	nameTag.Outline = true
+	nameTag.Font = 2
+	nameTag.Color = Color3.fromRGB(255, 255, 255)
+	nameTag.Visible = false
 
-	local healthBar = Drawing.new("Line")
 	healthBar.Thickness = 2
 	healthBar.Color = Color3.fromRGB(0, 255, 0)
+	healthBar.Visible = false
 
-	local con
-	con = runService.RenderStepped:Connect(function()
-		if not char or not char:FindFirstChild("HumanoidRootPart") then
-			box.Visible = false
+	RunService.RenderStepped:Connect(function()
+		if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") or not player.Character:FindFirstChild("Humanoid") then
+			espBox.Visible = false
 			tracer.Visible = false
 			nameTag.Visible = false
 			healthBar.Visible = false
 			return
 		end
 
-		local pos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(char.HumanoidRootPart.Position)
-		if not onScreen then
-			box.Visible = false
+		if TeamCheck and player.Team == LocalPlayer.Team then
+			espBox.Visible = false
 			tracer.Visible = false
 			nameTag.Visible = false
 			healthBar.Visible = false
 			return
 		end
 
-		local size = 4
-		local head = char:FindFirstChild("Head")
-		local hum = char:FindFirstChildOfClass("Humanoid")
-		if not head or not hum then return end
+		local hrp = player.Character.HumanoidRootPart
+		local humanoid = player.Character.Humanoid
+		local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
 
-		local headPos = workspace.CurrentCamera:WorldToViewportPoint(head.Position)
-		local footPos = workspace.CurrentCamera:WorldToViewportPoint(char.HumanoidRootPart.Position - Vector3.new(0,3,0))
-		local height = headPos.Y - footPos.Y
-		local width = height / 2
+		if onScreen then
+			local size = Vector2.new(40, 60)
+			local topLeft = Vector2.new(pos.X - size.X/2, pos.Y - size.Y/2)
 
-		box.Size = Vector2.new(width, height)
-		box.Position = Vector2.new(pos.X - width / 2, pos.Y - height / 2)
-		box.Visible = true
+			espBox.Position = topLeft
+			espBox.Size = size
+			espBox.Visible = BoxEnabled
 
-		tracer.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y)
-		tracer.To = Vector2.new(pos.X, pos.Y + height/2)
-		tracer.Visible = true
+			tracer.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+			tracer.To = Vector2.new(pos.X, pos.Y)
+			tracer.Visible = TracerEnabled
 
-		nameTag.Text = plr.Name .. " [" .. math.floor((localPlayer:DistanceFromCharacter(char.HumanoidRootPart.Position))) .. "m]"
-		nameTag.Position = Vector2.new(pos.X, pos.Y - height / 2 - 15)
-		nameTag.Visible = true
+			nameTag.Position = Vector2.new(pos.X, pos.Y - 40)
+			nameTag.Text = player.Name .. " | " .. math.floor((hrp.Position - Camera.CFrame.Position).Magnitude) .. "m"
+			nameTag.Visible = NameTagEnabled
 
-		local hpRatio = hum.Health / hum.MaxHealth
-		healthBar.From = Vector2.new(pos.X - width / 2 - 5, pos.Y + height / 2)
-		healthBar.To = Vector2.new(pos.X - width / 2 - 5, pos.Y + height / 2 - height * hpRatio)
-		healthBar.Visible = true
-	end)
-
-	local cleanup = Instance.new("ObjectValue")
-	cleanup.Value = plr
-	cleanup.Name = "ESP_"..plr.Name
-	cleanup.Parent = espFolder
-	cleanup.AncestryChanged:Connect(function()
-		box:Remove()
-		tracer:Remove()
-		nameTag:Remove()
-		healthBar:Remove()
-		con:Disconnect()
+			local healthRatio = humanoid.Health / humanoid.MaxHealth
+			healthBar.From = Vector2.new(topLeft.X - 5, topLeft.Y + size.Y)
+			healthBar.To = Vector2.new(topLeft.X - 5, topLeft.Y + size.Y * (1 - healthRatio))
+			healthBar.Visible = HealthBarEnabled
+		else
+			espBox.Visible = false
+			tracer.Visible = false
+			nameTag.Visible = false
+			healthBar.Visible = false
+		end
 	end)
 end
 
--- Toggle ESP
-espToggle.MouseButton1Click:Connect(function()
-	espEnabled = not espEnabled
-	espToggle.Text = espEnabled and "ESP: ON" or "ESP: OFF"
-	clearESP()
-	if espEnabled then
-		for _, plr in pairs(players:GetPlayers()) do
-			createESP(plr)
-		end
+-- Apply ESP to players
+for _, player in pairs(Players:GetPlayers()) do
+	if player ~= LocalPlayer then
+		DrawESP(player)
 	end
-end)
+end
 
-players.PlayerAdded:Connect(function(plr)
-	plr.CharacterAdded:Connect(function()
-		wait(1)
-		if espEnabled then
-			createESP(plr)
-		end
-	end)
-end)
-
--- Minimize toggle
-local minimized = false
-minimize.MouseButton1Click:Connect(function()
-	minimized = not minimized
-	toggleFrame.Visible = not minimized
+Players.PlayerAdded:Connect(function(player)
+	if player ~= LocalPlayer then
+		DrawESP(player)
+	end
 end)
