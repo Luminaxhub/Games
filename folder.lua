@@ -1,205 +1,247 @@
--- 🔎 Flow's Prop Hunt - ESP & Settings UI
--- Script by - @Luminaprojects (RGB Credit)
+-- Flow's Prop Hunt Hub
+-- Script by - @Luminaprojects
+if game.PlaceId ~= 127655664262986 then
+    return warn("Этот сценарий предназначен только для Prop Hunt от Flow..")
+end
 
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
-local UIS = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local UserInputService = game:GetService("UserInputService")
 
--- 🧊 UI Setup
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-ScreenGui.Name = "FlowUI"
-ScreenGui.ResetOnSpawn = false
+local espName = "HiderESP"
+local teamName = "Hiders"
+local espColor = Color3.fromRGB(255, 255, 0)
+local espEnabled, tpEnabled, noclipEnabled = false, false, false
+local lobbyPosition = Vector3.new(3.13, 1935.48, -70.34)
+local walkspeed = 16
 
-local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0, 260, 0, 340)
-Frame.Position = UDim2.new(0.05, 0, 0.3, 0)
-Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-Frame.BorderSizePixel = 0
-Frame.Active = true
-Frame.Draggable = true
+-- UI
+local screenGui = Instance.new("ScreenGui", PlayerGui)
+screenGui.Name = "FlowsHub"
+screenGui.ResetOnSpawn = false
 
-local UICorner = Instance.new("UICorner", Frame)
-UICorner.CornerRadius = UDim.new(0, 10)
+-- OPEN Button
+local openBtn = Instance.new("TextButton", screenGui)
+openBtn.Text = "⚙️ OPEN"
+openBtn.Size = UDim2.new(0, 80, 0, 30)
+openBtn.Position = UDim2.new(0, 10, 0, 10)
+openBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+openBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+openBtn.Font = Enum.Font.GothamBold
+openBtn.TextSize = 18
+openBtn.ZIndex = 3
 
-local Title = Instance.new("TextLabel", Frame)
-Title.Text = "🔎 Flow's Prop Hunt"
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 18
-Title.TextColor3 = Color3.new(1, 1, 1)
-Title.BackgroundTransparency = 1
-Title.Position = UDim2.new(0, 10, 0, 10)
-Title.Size = UDim2.new(1, -20, 0, 20)
+-- Main Frame
+local main = Instance.new("Frame", screenGui)
+main.Size = UDim2.new(0, 270, 0, 280)
+main.Position = UDim2.new(0, 100, 0, 10)
+main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+main.BorderSizePixel = 0
+main.Visible = false
+main.Active = true
+main.Draggable = true
 
-local Subtitle = Instance.new("TextLabel", Frame)
-Subtitle.Text = "Featured ⚙️"
-Subtitle.Font = Enum.Font.Gotham
-Subtitle.TextSize = 14
-Subtitle.TextColor3 = Color3.fromRGB(180, 180, 180)
-Subtitle.BackgroundTransparency = 1
-Subtitle.Position = UDim2.new(0, 10, 0, 35)
-Subtitle.Size = UDim2.new(1, -20, 0, 20)
+-- Title
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "🔎 Flow's Prop Hunt"
+title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
 
--- Scrollable Area
-local Scroll = Instance.new("ScrollingFrame", Frame)
-Scroll.Size = UDim2.new(1, -20, 1, -70)
-Scroll.Position = UDim2.new(0, 10, 0, 60)
-Scroll.CanvasSize = UDim2.new(0, 0, 0, 500)
-Scroll.ScrollBarThickness = 4
-Scroll.BackgroundTransparency = 1
+-- ESP Button
+local espBtn = Instance.new("TextButton", main)
+espBtn.Position = UDim2.new(0, 10, 0, 40)
+espBtn.Size = UDim2.new(1, -20, 0, 40)
+espBtn.Text = "👁️ ESP: OFF"
+espBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+espBtn.TextColor3 = Color3.new(1, 1, 1)
+espBtn.Font = Enum.Font.GothamBold
+espBtn.TextSize = 16
 
-local UIListLayout = Instance.new("UIListLayout", Scroll)
-UIListLayout.Padding = UDim.new(0, 8)
+-- TP Button
+local tpBtn = Instance.new("TextButton", main)
+tpBtn.Position = UDim2.new(0, 10, 0, 90)
+tpBtn.Size = UDim2.new(1, -20, 0, 40)
+tpBtn.Text = "🌀 TP to Lobby (EASY WIN): OFF"
+tpBtn.BackgroundColor3 = Color3.fromRGB(60, 0, 0)
+tpBtn.TextColor3 = Color3.new(1, 1, 1)
+tpBtn.Font = Enum.Font.GothamBold
+tpBtn.TextSize = 15
 
--- 🧩 Buat Toggle Button
-local function CreateToggle(name, callback)
-	local toggle = Instance.new("TextButton")
-	toggle.Size = UDim2.new(1, -10, 0, 30)
-	toggle.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-	toggle.TextColor3 = Color3.new(1, 1, 1)
-	toggle.Font = Enum.Font.Gotham
-	toggle.TextSize = 14
-	toggle.Text = "❌ " .. name
-	toggle.AutoButtonColor = false
+-- Noclip Button
+local noclipBtn = Instance.new("TextButton", main)
+noclipBtn.Position = UDim2.new(0, 10, 0, 140)
+noclipBtn.Size = UDim2.new(1, -20, 0, 40)
+noclipBtn.Text = "🎯 Noclip: OFF"
+noclipBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+noclipBtn.TextColor3 = Color3.new(1, 1, 1)
+noclipBtn.Font = Enum.Font.GothamBold
+noclipBtn.TextSize = 16
 
-	local corner = Instance.new("UICorner", toggle)
-	corner.CornerRadius = UDim.new(0, 6)
+-- Walkspeed Label
+local wsLabel = Instance.new("TextLabel", main)
+wsLabel.Position = UDim2.new(0, 10, 0, 190)
+wsLabel.Size = UDim2.new(1, -20, 0, 20)
+wsLabel.Text = "🏃 Walkspeed: " .. walkspeed
+wsLabel.BackgroundTransparency = 1
+wsLabel.TextColor3 = Color3.new(1, 1, 1)
+wsLabel.Font = Enum.Font.GothamBold
+wsLabel.TextSize = 14
+wsLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-	local on = false
-	toggle.MouseButton1Click:Connect(function()
-		on = not on
-		toggle.Text = (on and "✅ " or "❌ ") .. name
-		pcall(callback, on)
-	end)
+-- Walkspeed Slider
+local wsSlider = Instance.new("TextButton", main)
+wsSlider.Position = UDim2.new(0, 10, 0, 215)
+wsSlider.Size = UDim2.new(1, -20, 0, 15)
+wsSlider.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+wsSlider.Text = ""
+wsSlider.AutoButtonColor = false
 
-	toggle.Parent = Scroll
-end
+local wsIndicator = Instance.new("Frame", wsSlider)
+wsIndicator.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+wsIndicator.Size = UDim2.new((walkspeed - 16) / 84, 0, 1, 0)
+wsIndicator.Position = UDim2.new(0, 0, 0, 0)
 
--- 🔲 ESP Box
-local ESPEnabled = false
-local function CreateESP(player)
-	if player.Character then
-		local box = Instance.new("BoxHandleAdornment")
-		box.Size = Vector3.new(2, 3, 1)
-		box.Name = "ESPBox"
-		box.Adornee = player.Character:FindFirstChild("HumanoidRootPart")
-		box.AlwaysOnTop = true
-		box.ZIndex = 5
-		box.Color3 = Color3.new(1, 1, 1)
-		box.Transparency = 0.5
-		box.Parent = player.Character
-	end
-end
+wsIndicator.Parent = wsSlider
 
-local function RemoveESP(player)
-	if player.Character then
-		local box = player.Character:FindFirstChild("ESPBox")
-		if box then box:Destroy() end
-	end
-end
+-- RGB Credit
+local rgbCredit = Instance.new("TextLabel", screenGui)
+rgbCredit.Size = UDim2.new(1, 0, 0, 25)
+rgbCredit.Position = UDim2.new(0, 0, 1, -25)
+rgbCredit.BackgroundTransparency = 1
+rgbCredit.Text = "Script by - @Luminaprojects"
+rgbCredit.Font = Enum.Font.GothamBold
+rgbCredit.TextSize = 14
+rgbCredit.TextColor3 = Color3.fromRGB(255, 0, 0)
 
-CreateToggle("ESP Box", function(state)
-	ESPEnabled = state
-	for _, p in ipairs(Players:GetPlayers()) do
-		if p ~= LocalPlayer then
-			if state then
-				CreateESP(p)
-			else
-				RemoveESP(p)
-			end
+-- RGB Animation
+task.spawn(function()
+	while true do
+		for i = 0, 255, 4 do
+			rgbCredit.TextColor3 = Color3.fromHSV(i / 255, 1, 1)
+			task.wait(0.03)
 		end
 	end
 end)
 
--- 🔷 Morph ESP (menampilkan nama Morph di atas pemain)
-CreateToggle("Morph ESP", function(state)
-	if state then
-		RunService:BindToRenderStep("MorphESP", Enum.RenderPriority.Camera.Value + 1, function()
-			for _, player in ipairs(Players:GetPlayers()) do
-				if player ~= LocalPlayer and player.Character then
-					local head = player.Character:FindFirstChild("Head")
-					if head and not head:FindFirstChild("MorphTag") then
-						local tag = Instance.new("BillboardGui", head)
-						tag.Name = "MorphTag"
-						tag.Size = UDim2.new(0, 100, 0, 40)
-						tag.StudsOffset = Vector3.new(0, 2, 0)
-						tag.AlwaysOnTop = true
+-- UI Toggle
+openBtn.MouseButton1Click:Connect(function()
+	main.Visible = not main.Visible
+end)
 
-						local label = Instance.new("TextLabel", tag)
-						label.Size = UDim2.new(1, 0, 1, 0)
-						label.BackgroundTransparency = 1
-						label.Text = "Morph"
-						label.TextColor3 = Color3.fromRGB(255, 200, 0)
-						label.TextStrokeTransparency = 0.5
-						label.Font = Enum.Font.GothamBold
-						label.TextSize = 14
-					end
-				end
-			end
-		end)
-	else
-		RunService:UnbindFromRenderStep("MorphESP")
-		for _, player in ipairs(Players:GetPlayers()) do
-			if player.Character then
-				local head = player.Character:FindFirstChild("Head")
-				if head and head:FindFirstChild("MorphTag") then
-					head.MorphTag:Destroy()
-				end
-			end
+-- ESP Logic
+local function createESP(player)
+	if not espEnabled or player == LocalPlayer then return end
+	if player.Character and player.Character:FindFirstChild("Head") and not player.Character:FindFirstChild(espName) then
+		local bill = Instance.new("BillboardGui", player.Character)
+		bill.Name = espName
+		bill.Adornee = player.Character.Head
+		bill.Size = UDim2.new(0, 100, 0, 40)
+		bill.StudsOffset = Vector3.new(0, 2, 0)
+		bill.AlwaysOnTop = true
+
+		local label = Instance.new("TextLabel", bill)
+		label.Size = UDim2.new(1, 0, 1, 0)
+		label.BackgroundTransparency = 1
+		label.Text = "👀 Hider"
+		label.TextColor3 = espColor
+		label.TextScaled = true
+	end
+end
+
+local function removeESP(player)
+	if player.Character then
+		local esp = player.Character:FindFirstChild(espName)
+		if esp then esp:Destroy() end
+	end
+end
+
+local function updateESP()
+	for _, p in pairs(Players:GetPlayers()) do
+		if p.Team and p.Team.Name == teamName then
+			createESP(p)
+		else
+			removeESP(p)
 		end
 	end
+end
+
+-- ESP Toggle
+espBtn.MouseButton1Click:Connect(function()
+	espEnabled = not espEnabled
+	espBtn.Text = espEnabled and "👁️ ESP: ON" or "👁️ ESP: OFF"
+	espBtn.BackgroundColor3 = espEnabled and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(40, 40, 40)
 end)
 
--- 🩹 Auto Heal
-CreateToggle("Auto Heal", function(state)
-	if state then
-		_G.HealLoop = true
-		task.spawn(function()
-			while _G.HealLoop do
-				local gui = LocalPlayer:FindFirstChild("PlayerGui")
-				if gui and gui:FindFirstChild("HealButton") then
-					fireclickdetector(gui.HealButton)
-				end
-				wait(2)
-			end
-		end)
-	else
-		_G.HealLoop = false
+-- TP Toggle
+tpBtn.MouseButton1Click:Connect(function()
+	tpEnabled = not tpEnabled
+	tpBtn.Text = tpEnabled and "🌀 TP to Lobby (EASY WIN): ON" or "🌀 TP to Lobby (EASY WIN): OFF"
+	tpBtn.BackgroundColor3 = tpEnabled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(60, 0, 0)
+end)
+
+-- Noclip Toggle
+noclipBtn.MouseButton1Click:Connect(function()
+	noclipEnabled = not noclipEnabled
+	noclipBtn.Text = noclipEnabled and "🎯 Noclip: ON" or "🎯 Noclip: OFF"
+	noclipBtn.BackgroundColor3 = noclipEnabled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(40, 40, 40)
+end)
+
+-- Walkspeed Drag
+local dragging = false
+wsSlider.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
 	end
 end)
 
--- 💀 Auto Taunt
-CreateToggle("Auto Taunt", function(state)
-	if state then
-		_G.TauntLoop = true
-		task.spawn(function()
-			while _G.TauntLoop do
-				local gui = LocalPlayer:FindFirstChild("PlayerGui")
-				if gui and gui:FindFirstChild("TauntButton") then
-					fireclickdetector(gui.TauntButton)
-				end
-				wait(3)
-			end
-		end)
-	else
-		_G.TauntLoop = false
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
 	end
 end)
 
--- 🌈 RGB Credit
-local credit = Instance.new("TextLabel", Frame)
-credit.Position = UDim2.new(0, 0, 1, -22)
-credit.Size = UDim2.new(1, 0, 0, 20)
-credit.BackgroundTransparency = 1
-credit.Text = "Script by - @Luminaprojects"
-credit.Font = Enum.Font.GothamBold
-credit.TextSize = 12
-credit.TextColor3 = Color3.fromRGB(255, 0, 0)
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
+		local x = math.clamp((input.Position.X - wsSlider.AbsolutePosition.X) / wsSlider.AbsoluteSize.X, 0, 1)
+		wsIndicator.Size = UDim2.new(x, 0, 1, 0)
+		walkspeed = math.floor(16 + (x * 84))
+		wsLabel.Text = "🏃 Walkspeed: " .. walkspeed
+	end
+end)
 
-local hue = 0
+-- Loop
 RunService.RenderStepped:Connect(function()
-	hue = (hue + 0.005) % 1
-	credit.TextColor3 = Color3.fromHSV(hue, 1, 1)
+	if espEnabled then updateESP() end
+	if tpEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(lobbyPosition)
+	end
+	if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+		LocalPlayer.Character.Humanoid.WalkSpeed = walkspeed
+	end
+	if noclipEnabled and LocalPlayer.Character then
+		for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
+			if v:IsA("BasePart") then
+				v.CanCollide = false
+			end
+		end
+	end
 end)
+
+-- Player events
+Players.PlayerAdded:Connect(function(player)
+	player:GetPropertyChangedSignal("Team"):Connect(updateESP)
+	player.CharacterAdded:Connect(function()
+		wait(0.5)
+		if espEnabled and player.Team and player.Team.Name == teamName then
+			createESP(player)
+		end
+	end)
+end)
+
+Players.PlayerRemoving:Connect(removeESP)
+updateESP()
