@@ -1,7 +1,7 @@
 -- Flow's Prop Hunt Hub
 -- Script by - @Luminaprojects
 if game.PlaceId ~= 127655664262986 then
-    return warn("Этот сценарий предназначен только для Prop Hunt от Flow..")
+    return warn("Этот сценарий предназначен только для Prop Hunt от Flow..")
 end
 
 local Players = game:GetService("Players")
@@ -62,11 +62,24 @@ espBtn.TextColor3 = Color3.new(1, 1, 1)
 espBtn.Font = Enum.Font.GothamBold
 espBtn.TextSize = 16
 
+-- Auto Collect Coin
+spawn(function()
+    while task.wait(1) do
+        for _, coin in pairs(workspace:GetDescendants()) do
+            if coin:IsA("TouchTransmitter") and coin.Parent and coin.Parent:IsA("Part") and coin.Parent.Name == "Coin" then
+                firetouchinterest(LocalPlayer.Character.HumanoidRootPart, coin.Parent, 0)
+                task.wait()
+                firetouchinterest(LocalPlayer.Character.HumanoidRootPart, coin.Parent, 1)
+            end
+        end
+    end
+end)
+
 -- TP Button
 local tpBtn = Instance.new("TextButton", main)
 tpBtn.Position = UDim2.new(0, 10, 0, 90)
 tpBtn.Size = UDim2.new(1, -20, 0, 40)
-tpBtn.Text = "🌀 TP to Lobby (EASY WIN): OFF"
+tpBtn.Text = "👑 TP to Lobby (EASY WIN): OFF"
 tpBtn.BackgroundColor3 = Color3.fromRGB(60, 0, 0)
 tpBtn.TextColor3 = Color3.new(1, 1, 1)
 tpBtn.Font = Enum.Font.GothamBold
@@ -120,128 +133,10 @@ rgbCredit.TextColor3 = Color3.fromRGB(255, 0, 0)
 
 -- RGB Animation
 task.spawn(function()
-	while true do
-		for i = 0, 255, 4 do
-			rgbCredit.TextColor3 = Color3.fromHSV(i / 255, 1, 1)
-			task.wait(0.03)
-		end
-	end
+ while true do
+  for i = 0, 255, 4 do
+   rgbCredit.TextColor3 = Color3.fromHSV(i / 255, 1, 1)
+   task.wait(0.03)
+  end
+ end
 end)
-
--- UI Toggle
-openBtn.MouseButton1Click:Connect(function()
-	main.Visible = not main.Visible
-end)
-
--- ESP Logic
-local function createESP(player)
-	if not espEnabled or player == LocalPlayer then return end
-	if player.Character and player.Character:FindFirstChild("Head") and not player.Character:FindFirstChild(espName) then
-		local bill = Instance.new("BillboardGui", player.Character)
-		bill.Name = espName
-		bill.Adornee = player.Character.Head
-		bill.Size = UDim2.new(0, 100, 0, 40)
-		bill.StudsOffset = Vector3.new(0, 2, 0)
-		bill.AlwaysOnTop = true
-
-		local label = Instance.new("TextLabel", bill)
-		label.Size = UDim2.new(1, 0, 1, 0)
-		label.BackgroundTransparency = 1
-		label.Text = "👀 Hider"
-		label.TextColor3 = espColor
-		label.TextScaled = true
-	end
-end
-
-local function removeESP(player)
-	if player.Character then
-		local esp = player.Character:FindFirstChild(espName)
-		if esp then esp:Destroy() end
-	end
-end
-
-local function updateESP()
-	for _, p in pairs(Players:GetPlayers()) do
-		if p.Team and p.Team.Name == teamName then
-			createESP(p)
-		else
-			removeESP(p)
-		end
-	end
-end
-
--- ESP Toggle
-espBtn.MouseButton1Click:Connect(function()
-	espEnabled = not espEnabled
-	espBtn.Text = espEnabled and "👁️ ESP: ON" or "👁️ ESP: OFF"
-	espBtn.BackgroundColor3 = espEnabled and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(40, 40, 40)
-end)
-
--- TP Toggle
-tpBtn.MouseButton1Click:Connect(function()
-	tpEnabled = not tpEnabled
-	tpBtn.Text = tpEnabled and "🌀 TP to Lobby (EASY WIN): ON" or "🌀 TP to Lobby (EASY WIN): OFF"
-	tpBtn.BackgroundColor3 = tpEnabled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(60, 0, 0)
-end)
-
--- Noclip Toggle
-noclipBtn.MouseButton1Click:Connect(function()
-	noclipEnabled = not noclipEnabled
-	noclipBtn.Text = noclipEnabled and "🎯 Noclip: ON" or "🎯 Noclip: OFF"
-	noclipBtn.BackgroundColor3 = noclipEnabled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(40, 40, 40)
-end)
-
--- Walkspeed Drag
-local dragging = false
-wsSlider.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-	end
-end)
-
-UserInputService.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = false
-	end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-	if dragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
-		local x = math.clamp((input.Position.X - wsSlider.AbsolutePosition.X) / wsSlider.AbsoluteSize.X, 0, 1)
-		wsIndicator.Size = UDim2.new(x, 0, 1, 0)
-		walkspeed = math.floor(16 + (x * 84))
-		wsLabel.Text = "🏃 Walkspeed: " .. walkspeed
-	end
-end)
-
--- Loop
-RunService.RenderStepped:Connect(function()
-	if espEnabled then updateESP() end
-	if tpEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-		LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(lobbyPosition)
-	end
-	if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-		LocalPlayer.Character.Humanoid.WalkSpeed = walkspeed
-	end
-	if noclipEnabled and LocalPlayer.Character then
-		for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
-			if v:IsA("BasePart") then
-				v.CanCollide = false
-			end
-		end
-	end
-end)
-
--- Player events
-Players.PlayerAdded:Connect(function(player)
-	player:GetPropertyChangedSignal("Team"):Connect(updateESP)
-	player.CharacterAdded:Connect(function()
-		wait(0.5)
-		if espEnabled and player.Team and player.Team.Name == teamName then
-			createESP(player)
-		end
-	end)
-end)
-
-Players.PlayerRemoving:Connect(removeESP)
-updateESP()
