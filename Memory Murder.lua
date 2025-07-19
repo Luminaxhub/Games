@@ -1,7 +1,3 @@
-if game.PlaceId ~= 9638489687 then
-    return warn("This script only works in Memory Murder.")
-end
-
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
