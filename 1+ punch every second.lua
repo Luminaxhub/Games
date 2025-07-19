@@ -1,3 +1,4 @@
+local uiScript = [[
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -16,23 +17,39 @@ local npcList = {
     "Astronaut", "Space Man", "Crew Member", "Pirate Captain", "Lava Guard", "Dark Trooper"
 }
 
-local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+local TOGGLE_KEY = Enum.KeyCode.RightShift
+
+local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "AutoSystemUI"
 ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
--- Coba ambil posisi yang tersimpan
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Name = "ToggleButton"
+ToggleButton.Text = "⚙️"
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.TextSize = 20
+ToggleButton.Size = UDim2.new(0, 40, 0, 40)
+ToggleButton.Position = UDim2.new(0, 10, 0.5, -20)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(70, 50, 150)
+ToggleButton.TextColor3 = Color3.new(1, 1, 1)
+ToggleButton.ZIndex = 10
+Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 8)
+ToggleButton.Parent = ScreenGui
+
 local savedPos = LocalPlayer.PlayerGui:FindFirstChild("SavedPos")
 local posX, posY = 0.5, 0.2
 if savedPos and savedPos:FindFirstChild("X") and savedPos:FindFirstChild("Y") then
-	posX = tonumber(savedPos.X.Value)
-	posY = tonumber(savedPos.Y.Value)
+    posX = tonumber(savedPos.X.Value)
+    posY = tonumber(savedPos.Y.Value)
 end
 
-local MainFrame = Instance.new("Frame", ScreenGui)
+local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 260, 0, 380)
 MainFrame.Position = UDim2.new(posX, -130, posY, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(70, 50, 150)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+MainFrame.Visible = false
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 
 local gradient = Instance.new("UIGradient", MainFrame)
@@ -61,12 +78,23 @@ Minimize.Position = UDim2.new(1, -35, 0, 10)
 Minimize.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
 Instance.new("UICorner", Minimize).CornerRadius = UDim.new(0, 6)
 
+local CloseButton = Instance.new("TextButton", MainFrame)
+CloseButton.Text = "X"
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.TextColor3 = Color3.new(1, 1, 1)
+CloseButton.TextSize = 20
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -70, 0, 10)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+Instance.new("UICorner", CloseButton).CornerRadius = UDim.new(0, 6)
+
 local Content = Instance.new("Frame", MainFrame)
 Content.Name = "Content"
 Content.Size = UDim2.new(1, -20, 1, -60)
 Content.Position = UDim2.new(0, 10, 0, 45)
 Content.BackgroundTransparency = 1
 
+-- Drag
 local dragging, dragStart, startPos
 Title.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -74,9 +102,8 @@ Title.InputBegan:Connect(function(input)
         dragStart = input.Position
         startPos = MainFrame.Position
         input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then 
-                dragging = false 
-                -- Simpan posisi ke PlayerGui
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
                 local saveFolder = LocalPlayer.PlayerGui:FindFirstChild("SavedPos") or Instance.new("Folder", LocalPlayer.PlayerGui)
                 saveFolder.Name = "SavedPos"
                 local xVal = saveFolder:FindFirstChild("X") or Instance.new("StringValue", saveFolder)
@@ -127,7 +154,7 @@ Instance.new("UICorner", Dropdown).CornerRadius = UDim.new(0, 6)
 
 local SelectedNPC = "Bandit"
 Dropdown.MouseButton1Click:Connect(function()
-    local currentIndex = table.find(npcList, SelectedNPC) or 1
+    local currentIndex = table.find(npcList, SelectedNPC) or 0
     local nextIndex = currentIndex + 1
     if nextIndex > #npcList then nextIndex = 1 end
     SelectedNPC = npcList[nextIndex]
@@ -135,7 +162,6 @@ Dropdown.MouseButton1Click:Connect(function()
 end)
 
 local autoTrain, autoRebirth, autoKill = false, false, false
-
 ToggleTrain.MouseButton1Click:Connect(function()
     autoTrain = not autoTrain
     ToggleTrain.Text = "Auto Train: " .. (autoTrain and "ON" or "OFF")
@@ -149,12 +175,8 @@ ToggleKill.MouseButton1Click:Connect(function()
     ToggleKill.Text = "Kill Aura: " .. (autoKill and "ON" or "OFF")
 end)
 ToggleAura3x.MouseButton1Click:Connect(function()
-	local args = {
-		true,
-		3,
-		"Multi"
-	}
-	ReplicatedStorage:WaitForChild("ServerEvents"):WaitForChild("PlaytimeRewardEvent"):WaitForChild("ButtonClicked"):InvokeServer(unpack(args))
+    local args = {true, 3, "Multi"}
+    ReplicatedStorage:WaitForChild("ServerEvents"):WaitForChild("PlaytimeRewardEvent"):WaitForChild("ButtonClicked"):InvokeServer(unpack(args))
 end)
 
 local minimized = false
@@ -163,6 +185,24 @@ Minimize.MouseButton1Click:Connect(function()
     Content.Visible = not minimized
     MainFrame:TweenSize(UDim2.new(0, 260, 0, minimized and 50 or 380), "Out", "Quad", 0.3, true)
 end)
+CloseButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+    ToggleButton.Visible = true
+end)
+
+local function toggleUI()
+    MainFrame.Visible = not MainFrame.Visible
+    ToggleButton.Visible = not MainFrame.Visible
+end
+
+ToggleButton.MouseButton1Click:Connect(toggleUI)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == TOGGLE_KEY then
+        toggleUI()
+    end
+end)
+
+MainFrame.Parent = ScreenGui
 
 task.spawn(function()
     while true do
@@ -194,19 +234,13 @@ task.spawn(function()
                     if npc and npc:FindFirstChild("LowerTorso") then
                         local dist = (character.HumanoidRootPart.Position - npc.LowerTorso.Position).Magnitude
                         if dist <= 30 then
-                            local args = {
-                                character,
-                                npc.LowerTorso,
-                                false,
-                                true
-                            }
+                            local args = {character, npc.LowerTorso, false, true}
                             DamageRE:FireServer(unpack(args))
                         end
                     end
                 end
             end
         end
-
         RunService.RenderStepped:Wait()
     end
 end)
@@ -230,3 +264,13 @@ task.spawn(function()
         task.wait(0.05)
     end
 end)
+]]
+
+-- Jalankan script dengan aman
+local success, err = pcall(function()
+    loadstring(uiScript)()
+end)
+
+if not success then
+    warn("Error executing UI script: " .. err)
+end
