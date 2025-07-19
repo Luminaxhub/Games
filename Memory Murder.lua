@@ -1,3 +1,8 @@
+-- Lock script to Game ID
+if game.PlaceId ~= 15532760521 then
+	return warn("Этот сценарий предназначен только для игры в память об убийстве.")
+end
+
 -- Services
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
@@ -58,7 +63,7 @@ credit.AnchorPoint = Vector2.new(0.5, 1)
 credit.Position = UDim2.new(0.5, 0, 1, -20)
 credit.Size = UDim2.new(0, 300, 0, 25)
 credit.BackgroundTransparency = 1
-credit.Text = "⭐ Скрипт от - Luminaprojects ⭐"
+credit.Text = "⚙️ Скрипт от - Luminaprojects ⚙️"
 credit.Font = Enum.Font.Gotham
 credit.TextSize = 14
 credit.TextColor3 = Color3.fromRGB(255,255,255)
