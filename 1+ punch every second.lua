@@ -117,7 +117,7 @@ MainFrame1.Parent = ScreenGui
 MainFrame2.Parent = ScreenGui
 
 local Credit = Instance.new("TextLabel")
-Credit.Text = "script by Luminaprojects"
+Credit.Text = "by Luminaprojects"
 Credit.Font = Enum.Font.GothamMedium
 Credit.TextSize = 12
 Credit.Position = UDim2.new(0.5, -60, 1, -25)
