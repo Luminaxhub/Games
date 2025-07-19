@@ -1,208 +1,164 @@
+-- ⛺ Shrink Hide & Seek by @luminaprojects
+if game.PlaceId ~= 137541498231955 then return end
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
 local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
-local gui = Instance.new("ScreenGui", game.CoreGui)
-gui.Name = "LuminaScrollUI"
-gui.ResetOnSpawn = false
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "ShrinkHubUI"
 
-local main = Instance.new("Frame", gui)
-main.Size = UDim2.new(0, 330, 0, 360)
-main.Position = UDim2.new(0.5, -165, 0.5, -180)
-main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-main.BackgroundTransparency = 0.2
-main.BorderSizePixel = 0
-main.Active = true
-main.Draggable = true
+-- OPEN BUTTON
+local openBtn = Instance.new("TextButton", ScreenGui)
+openBtn.Size = UDim2.new(0, 120, 0, 35)
+openBtn.Position = UDim2.new(0, 10, 0.4, 0)
+openBtn.Text = "OPEN ⛺"
+openBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+openBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+openBtn.BorderSizePixel = 0
+openBtn.Font = Enum.Font.GothamBold
+openBtn.TextSize = 16
+openBtn.AutoButtonColor = false
 
--- RGB Border
-local stroke = Instance.new("UIStroke", main)
-stroke.Thickness = 2
-stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-task.spawn(function()
+-- RGB Border Effect
+local function RGB(obj)
 	local hue = 0
-	while true do
-		hue = (hue + 1) % 360
-		stroke.Color = Color3.fromHSV(hue / 360, 1, 1)
-		task.wait(0.03)
-	end
-end)
-
--- Title
-local title = Instance.new("TextLabel", main)
-title.Size = UDim2.new(1, 0, 0, 40)
-title.BackgroundTransparency = 1
-title.Text = "⛺ Shrink Hide & Seek"
-title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.GothamBold
-title.TextScaled = true
-
--- Scrolling Area
-local scrolling = Instance.new("ScrollingFrame", main)
-scrolling.Size = UDim2.new(1, 0, 1, -60)
-scrolling.Position = UDim2.new(0, 0, 0, 40)
-scrolling.CanvasSize = UDim2.new(0, 0, 0, 400)
-scrolling.ScrollBarThickness = 5
-scrolling.BackgroundTransparency = 1
-
--- Template Function for Toggle Button
-function createToggleButton(text, yPos, callback)
-	local btn = Instance.new("TextButton", scrolling)
-	btn.Size = UDim2.new(0, 290, 0, 35)
-	btn.Position = UDim2.new(0, 20, 0, yPos)
-	btn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-	btn.Text = text .. ": OFF"
-	btn.TextColor3 = Color3.new(1, 1, 1)
-	btn.Font = Enum.Font.GothamBold
-	btn.TextScaled = true
-
-	local state = false
-	btn.MouseButton1Click:Connect(function()
-		state = not state
-		btn.Text = text .. ": " .. (state and "ON" or "OFF")
-		btn.BackgroundColor3 = state and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-		callback(state)
+	RunService.RenderStepped:Connect(function()
+		hue = (hue + 0.005) % 1
+		obj.BorderColor3 = Color3.fromHSV(hue, 1, 1)
+		obj.BorderSizePixel = 2
 	end)
 end
+RGB(openBtn)
 
--- Feature 1: ESP
-local function setupESP()
-	for _, p in pairs(Players:GetPlayers()) do
-		if p ~= LocalPlayer and p.Character and not p.Character:FindFirstChild("LuminaESP") then
-			local BillboardGui = Instance.new("BillboardGui")
-			BillboardGui.Name = "LuminaESP"
-			BillboardGui.Adornee = p.Character:WaitForChild("Head")
-			BillboardGui.Size = UDim2.new(0, 100, 0, 40)
-			BillboardGui.AlwaysOnTop = true
+-- MAIN UI
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 250, 0, 310)
+Frame.Position = UDim2.new(0.5, -125, 0.5, -155)
+Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Frame.Visible = false
+Frame.BorderSizePixel = 0
 
-			local TextLabel = Instance.new("TextLabel", BillboardGui)
-			TextLabel.Size = UDim2.new(1, 0, 1, 0)
-			TextLabel.BackgroundTransparency = 1
-			TextLabel.Text = "👀 HIDERS"
-			TextLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-			TextLabel.TextStrokeTransparency = 0
-			TextLabel.Font = Enum.Font.GothamBold
-			TextLabel.TextScaled = true
-
-			BillboardGui.Parent = p.Character
-
-			local Tracer = Drawing.new("Line")
-			Tracer.Color = Color3.fromRGB(255, 0, 0)
-			Tracer.Thickness = 1
-
-			RunService.RenderStepped:Connect(function()
-				if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-					local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(p.Character.HumanoidRootPart.Position)
-					Tracer.Visible = visible
-					if visible then
-						Tracer.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y)
-						Tracer.To = Vector2.new(pos.X, pos.Y)
-					end
-				else
-					Tracer.Visible = false
-				end
-			end)
-		end
-	end
-end
-createToggleButton("ESP", 0, function(state)
-	if state then setupESP() end
-end)
-
--- Feature 2: Hitbox
-_G.HeadSize = 2
-_G.Disabled = true
-local hitboxBtn = Instance.new("TextButton", scrolling)
-hitboxBtn.Size = UDim2.new(0, 290, 0, 35)
-hitboxBtn.Position = UDim2.new(0, 20, 0, 50)
-hitboxBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-hitboxBtn.TextColor3 = Color3.new(1, 1, 1)
-hitboxBtn.Font = Enum.Font.GothamBold
-hitboxBtn.TextScaled = true
-hitboxBtn.Text = "Hitbox Size: 2"
-
-hitboxBtn.MouseButton1Click:Connect(function()
-	_G.HeadSize = (_G.HeadSize + 1) % 21
-	if _G.HeadSize == 0 then _G.HeadSize = 1 end
-	hitboxBtn.Text = "Hitbox Size: " .. tostring(_G.HeadSize)
-end)
-
-RunService.RenderStepped:Connect(function()
-	if _G.Disabled then
-		for _, plr in pairs(Players:GetPlayers()) do
-			if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-				pcall(function()
-					local part = plr.Character.HumanoidRootPart
-					part.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
-					part.Transparency = 0.7
-					part.BrickColor = BrickColor.new("Really blue")
-					part.Material = "Neon"
-					part.CanCollide = false
-				end)
-			end
-		end
-	end
-end)
-
--- Feature 3: Noclip
-local noclip = false
-RunService.Stepped:Connect(function()
-	if noclip and LocalPlayer.Character then
-		for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
-			if v:IsA("BasePart") then v.CanCollide = false end
-		end
-	end
-end)
-createToggleButton("Noclip", 100, function(state)
-	noclip = state
-end)
-
--- Feature 4: Auto Spin
-createToggleButton("Auto Spin", 150, function(state)
-	if state then
-		_G.autoSpin = true
-		task.spawn(function()
-			while _G.autoSpin do
-				pcall(function()
-					ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Spin"):InvokeServer()
-				end)
-				task.wait(1)
-			end
+-- Drag Support
+local dragging, dragInput, dragStart, startPos
+Frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = Frame.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then dragging = false end
 		end)
-	else
-		_G.autoSpin = false
+	end
+end)
+UIS.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		Frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 	end
 end)
 
--- Feature 5: Mini Mode
-createToggleButton("Mini Mode 39R$", 200, function(state)
-	-- Dummy function, bisa ditambahkan efek kecil jika ada
+-- Toggle UI
+openBtn.MouseButton1Click:Connect(function()
+	Frame.Visible = not Frame.Visible
 end)
 
--- Feature 6: Big Mode
-createToggleButton("Big Mode", 250, function(state)
-	if state then
-		local args = {
-			{{"Grow"}, "\004"}
+-- CREATE BUTTON FUNCTION
+local function createBtn(name, color, y, callback)
+	local btn = Instance.new("TextButton", Frame)
+	btn.Size = UDim2.new(0, 230, 0, 35)
+	btn.Position = UDim2.new(0, 10, 0, y)
+	btn.BackgroundColor3 = color
+	btn.Text = name
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 14
+	btn.BorderSizePixel = 0
+	btn.MouseButton1Click:Connect(callback)
+end
+
+-- ESP
+createBtn("ESP", Color3.fromRGB(0, 200, 255), 10, function()
+	for _,v in pairs(Players:GetPlayers()) do
+		if v ~= LocalPlayer and v.Character then
+			local box = Instance.new("BoxHandleAdornment", v.Character)
+			box.Adornee = v.Character:FindFirstChild("HumanoidRootPart")
+			box.Size = Vector3.new(4, 6, 1)
+			box.Color3 = Color3.fromRGB(255, 0, 0)
+			box.AlwaysOnTop = true
+			box.ZIndex = 5
+		end
+	end
+end)
+
+-- Hitbox
+createBtn("Hitbox", Color3.fromRGB(255, 0, 0), 50, function()
+	for _,v in pairs(Players:GetPlayers()) do
+		if v ~= LocalPlayer and v.Character then
+			local hrp = v.Character:FindFirstChild("HumanoidRootPart")
+			if hrp then hrp.Size = Vector3.new(10, 10, 10) end
+		end
+	end
+end)
+
+-- Noclip
+createBtn("Noclip", Color3.fromRGB(255, 100, 0), 90, function()
+	local noclip = true
+	RunService.Stepped:Connect(function()
+		if noclip and LocalPlayer.Character then
+			for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
+				if part:IsA("BasePart") then part.CanCollide = false end
+			end
+		end
+	end)
+end)
+
+-- Auto Spin
+createBtn("Auto Spin", Color3.fromRGB(0, 255, 0), 130, function()
+	game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Spin"):InvokeServer()
+end)
+
+-- Mini Mode 39R$
+createBtn("Mini Mode 39R$", Color3.fromRGB(255, 0, 0), 170, function()
+	local args = {
+		{
+			{ "Shrink" },
+			"\005"
 		}
-		ReplicatedStorage:WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
-	end
+	}
+	game:GetService("ReplicatedStorage"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
 end)
 
--- RGB Credit
-local credit = Instance.new("TextLabel", main)
-credit.Size = UDim2.new(1, 0, 0, 20)
-credit.Position = UDim2.new(0, 0, 1, -20)
-credit.BackgroundTransparency = 1
-credit.Font = Enum.Font.GothamBold
-credit.Text = "🔎 Script by - @Luminaprojects"
-credit.TextScaled = true
+-- Big Mode
+createBtn("Big Mode", Color3.fromRGB(0, 200, 255), 210, function()
+	local args = {
+		{
+			{ "Grow" },
+			"\005"
+		}
+	}
+	game:GetService("ReplicatedStorage"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
+end)
 
-task.spawn(function()
+-- CREDIT
+local credit = Instance.new("TextLabel", Frame)
+credit.Size = UDim2.new(1, 0, 0, 30)
+credit.Position = UDim2.new(0, 0, 1, -30)
+credit.BackgroundTransparency = 1
+credit.Text = "⭐ Script by - @Luminaprojects ⭐"
+credit.Font = Enum.Font.GothamBold
+credit.TextSize = 12
+credit.TextColor3 = Color3.new(1,1,1)
+
+-- RGB Credit Text
+spawn(function()
 	while true do
-		local hue = tick() % 5 / 5
-		credit.TextColor3 = Color3.fromHSV(hue, 1, 1)
-		task.wait(0.1)
+		for i = 0, 1, 0.01 do
+			credit.TextColor3 = Color3.fromHSV(i,1,1)
+			wait()
+		end
 	end
 end)
