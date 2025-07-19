@@ -1,126 +1,92 @@
--- ✅ Game Lock: Memory Murder only
-if game.PlaceId ~= 9638489687 then
-    return warn("🚫 This script only works in Memory Murder.")
+if game.PlaceId ~= 96384896875593 then
+	return warn("Script ini hanya untuk Memory Murder!")
 end
 
--- ✅ Configuration
-local userKey = "LUMINAKEY_pxs0up8r2bh2j19"
-local getKeyURL = "https://get-key-luminakey.vercel.app/"
-local mainScript = "https://raw.githubusercontent.com/Luminaxhub/Games/refs/heads/main/Memory%20Murder.lua"
-
--- ✅ GUI
+-- UI Setup
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "LUMINA_UI"
+-- UI Instance
+local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+ScreenGui.Name = "LuminakeyUI"
 ScreenGui.ResetOnSpawn = false
-pcall(function()
-    ScreenGui.Parent = gethui and gethui() or game:GetService("CoreGui")
+
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame.Size = UDim2.new(0, 370, 0, 180)
+Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Frame.BackgroundTransparency = 0.2
+Frame.BorderSizePixel = 0
+Frame.ClipsDescendants = true
+
+-- UICorner
+local UICorner = Instance.new("UICorner", Frame)
+UICorner.CornerRadius = UDim.new(0, 12)
+
+-- Title
+local Title = Instance.new("TextLabel", Frame)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundTransparency = 1
+Title.Text = "🔐 Key system"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+
+-- Input
+local Input = Instance.new("TextBox", Frame)
+Input.PlaceholderText = "Enter your key..."
+Input.Size = UDim2.new(0.85, 0, 0, 35)
+Input.Position = UDim2.new(0.075, 0, 0.45, 0)
+Input.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Input.TextColor3 = Color3.fromRGB(255, 255, 255)
+Input.Font = Enum.Font.Gotham
+Input.TextSize = 16
+Input.ClearTextOnFocus = false
+Instance.new("UICorner", Input).CornerRadius = UDim.new(0, 6)
+
+-- Button
+local Button = Instance.new("TextButton", Frame)
+Button.Size = UDim2.new(0.85, 0, 0, 35)
+Button.Position = UDim2.new(0.075, 0, 0.75, 0)
+Button.Text = "✅ Verify"
+Button.Font = Enum.Font.GothamBold
+Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+Button.TextSize = 16
+Button.BackgroundColor3 = Color3.fromRGB(40, 130, 255)
+Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
+
+-- GetKey Text
+local GetKeyText = Instance.new("TextLabel", Frame)
+GetKeyText.Text = "🔗 Get Key: https://get-key-luminakey.vercel.app/"
+GetKeyText.Position = UDim2.new(0.05, 0, 0.88, 0)
+GetKeyText.Size = UDim2.new(0.9, 0, 0, 20)
+GetKeyText.BackgroundTransparency = 1
+GetKeyText.TextColor3 = Color3.fromRGB(255, 255, 255)
+GetKeyText.Font = Enum.Font.Gotham
+GetKeyText.TextScaled = true
+GetKeyText.TextWrapped = true
+
+-- Animation (tween masuk)
+TweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+	Position = UDim2.new(0.5, 0, 0.5, 0)
+}):Play()
+
+-- KEY
+local ValidKey = "LUMINAKEY_pxs0up8r2bh2j19"
+
+Button.MouseButton1Click:Connect(function()
+	if Input.Text == ValidKey then
+		Button.Text = "✅ Verified!"
+		wait(0.5)
+		ScreenGui:Destroy()
+		-- Load main script after verify
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Luminaxhub/Games/refs/heads/main/Memory%20Murder.lua"))()
+	else
+		Button.Text = "❌ Invalid Key!"
+		wait(1)
+		Button.Text = "✅ Verify"
+	end
 end)
-
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 300, 0, 170)
-mainFrame.Position = UDim2.new(0.5, -150, 0.5, -85)
-mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-mainFrame.BackgroundTransparency = 0.2
-mainFrame.BorderSizePixel = 0
-mainFrame.Active = true
-mainFrame.Draggable = true
-mainFrame.Parent = ScreenGui
-
-Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
-
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 35)
-title.BackgroundTransparency = 1
-title.Text = "🔐 Key System"
-title.Font = Enum.Font.GothamBold
-title.TextSize = 18
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.Parent = mainFrame
-
-local keyBox = Instance.new("TextBox")
-keyBox.Size = UDim2.new(0.9, 0, 0, 35)
-keyBox.Position = UDim2.new(0.05, 0, 0, 45)
-keyBox.PlaceholderText = "Enter your key here..."
-keyBox.Text = ""
-keyBox.ClearTextOnFocus = false
-keyBox.Font = Enum.Font.Gotham
-keyBox.TextSize = 14
-keyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-keyBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-keyBox.Parent = mainFrame
-Instance.new("UICorner", keyBox).CornerRadius = UDim.new(0, 6)
-
-local getKeyBtn = Instance.new("TextButton")
-getKeyBtn.Size = UDim2.new(0.42, 0, 0, 30)
-getKeyBtn.Position = UDim2.new(0.05, 0, 0, 90)
-getKeyBtn.Text = "🌐 Get Key"
-getKeyBtn.Font = Enum.Font.GothamBold
-getKeyBtn.TextSize = 14
-getKeyBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-getKeyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-getKeyBtn.MouseButton1Click:Connect(function()
-    if setclipboard then
-        setclipboard(getKeyURL)
-    end
-end)
-getKeyBtn.Parent = mainFrame
-
-local verifyBtn = Instance.new("TextButton")
-verifyBtn.Size = UDim2.new(0.42, 0, 0, 30)
-verifyBtn.Position = UDim2.new(0.53, 0, 0, 90)
-verifyBtn.Text = "✅ Verify"
-verifyBtn.Font = Enum.Font.GothamBold
-verifyBtn.TextSize = 14
-verifyBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 127)
-verifyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-verifyBtn.Parent = mainFrame
-verifyBtn.MouseButton1Click:Connect(function()
-    if keyBox.Text == userKey then
-        verifyBtn.Text = "Loading..."
-        mainFrame:TweenPosition(UDim2.new(0.5, -150, 2, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.7, true)
-        wait(0.7)
-        ScreenGui:Destroy()
-        loadstring(game:HttpGet(mainScript))()
-    else
-        keyBox.Text = ""
-        keyBox.PlaceholderText = "❌ Invalid key. Try again!"
-    end
-end)
-
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 24, 0, 24)
-closeBtn.Position = UDim2.new(1, -28, 0, 4)
-closeBtn.Text = "✕"
-closeBtn.Font = Enum.Font.GothamBold
-closeBtn.TextSize = 14
-closeBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
-closeBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-closeBtn.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-end)
-closeBtn.Parent = mainFrame
-
-local RGBLabel = Instance.new("TextLabel")
-RGBLabel.Size = UDim2.new(1, 0, 0, 20)
-RGBLabel.Position = UDim2.new(0, 0, 1, -22)
-RGBLabel.BackgroundTransparency = 1
-RGBLabel.Font = Enum.Font.GothamBold
-RGBLabel.TextSize = 12
-RGBLabel.Text = "🔎 Script by - @Luminaprojects"
-RGBLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-RGBLabel.Parent = mainFrame
-
-coroutine.wrap(function()
-    while task.wait() do
-        for i = 0, 1, 0.01 do
-            local r = math.sin(i * math.pi * 2) * 127 + 128
-            local g = math.sin((i + 1/3) * math.pi * 2) * 127 + 128
-            local b = math.sin((i + 2/3) * math.pi * 2) * 127 + 128
-            RGBLabel.TextColor3 = Color3.fromRGB(r, g, b)
-            task.wait(0.03)
-        end
-    end
-end)()
