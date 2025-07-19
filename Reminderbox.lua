@@ -9,11 +9,12 @@ local getKeyURL = "https://get-key-luminakey.vercel.app/"
 local mainScript = "https://raw.githubusercontent.com/Luminaxhub/Games/refs/heads/main/Memory%20Murder.lua"
 
 local function createUI()
-    local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+    local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "LUMINA_UI"
     ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game:GetService("CoreGui")
 
-    local mainFrame = Instance.new("Frame", ScreenGui)
+    local mainFrame = Instance.new("Frame")
     mainFrame.Size = UDim2.new(0, 300, 0, 170)
     mainFrame.Position = UDim2.new(0.5, -150, 0.5, -85)
     mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
@@ -21,18 +22,22 @@ local function createUI()
     mainFrame.BorderSizePixel = 0
     mainFrame.Active = true
     mainFrame.Draggable = true
+    mainFrame.Parent = ScreenGui
 
-    Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 10)
+    UICorner.Parent = mainFrame
 
-    local title = Instance.new("TextLabel", mainFrame)
+    local title = Instance.new("TextLabel")
     title.Size = UDim2.new(1, 0, 0, 35)
     title.BackgroundTransparency = 1
-    title.Text = "🔐 Key System"
+    title.Text = "🧠 Murder Memory Key System"
     title.Font = Enum.Font.GothamBold
     title.TextSize = 18
     title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.Parent = mainFrame
 
-    local keyBox = Instance.new("TextBox", mainFrame)
+    local keyBox = Instance.new("TextBox")
     keyBox.Size = UDim2.new(0.9, 0, 0, 35)
     keyBox.Position = UDim2.new(0.05, 0, 0, 45)
     keyBox.PlaceholderText = "Enter your key here..."
@@ -42,9 +47,13 @@ local function createUI()
     keyBox.TextSize = 14
     keyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
     keyBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    Instance.new("UICorner", keyBox).CornerRadius = UDim.new(0, 6)
+    keyBox.Parent = mainFrame
 
-    local getKeyBtn = Instance.new("TextButton", mainFrame)
+    local keyCorner = Instance.new("UICorner")
+    keyCorner.CornerRadius = UDim.new(0, 6)
+    keyCorner.Parent = keyBox
+
+    local getKeyBtn = Instance.new("TextButton")
     getKeyBtn.Size = UDim2.new(0.42, 0, 0, 30)
     getKeyBtn.Position = UDim2.new(0.05, 0, 0, 90)
     getKeyBtn.Text = "🌐 Get Key"
@@ -55,8 +64,9 @@ local function createUI()
     getKeyBtn.MouseButton1Click:Connect(function()
         setclipboard(getKeyURL)
     end)
+    getKeyBtn.Parent = mainFrame
 
-    local verifyBtn = Instance.new("TextButton", mainFrame)
+    local verifyBtn = Instance.new("TextButton")
     verifyBtn.Size = UDim2.new(0.42, 0, 0, 30)
     verifyBtn.Position = UDim2.new(0.53, 0, 0, 90)
     verifyBtn.Text = "✅ Verify"
@@ -75,8 +85,9 @@ local function createUI()
             keyBox.PlaceholderText = "❌ Invalid key. Try again!"
         end
     end)
+    verifyBtn.Parent = mainFrame
 
-    local closeBtn = Instance.new("TextButton", mainFrame)
+    local closeBtn = Instance.new("TextButton")
     closeBtn.Size = UDim2.new(0, 24, 0, 24)
     closeBtn.Position = UDim2.new(1, -28, 0, 4)
     closeBtn.Text = "✕"
@@ -87,8 +98,9 @@ local function createUI()
     closeBtn.MouseButton1Click:Connect(function()
         ScreenGui:Destroy()
     end)
+    closeBtn.Parent = mainFrame
 
-    local RGBLabel = Instance.new("TextLabel", mainFrame)
+    local RGBLabel = Instance.new("TextLabel")
     RGBLabel.Size = UDim2.new(1, 0, 0, 20)
     RGBLabel.Position = UDim2.new(0, 0, 1, -22)
     RGBLabel.BackgroundTransparency = 1
@@ -96,6 +108,7 @@ local function createUI()
     RGBLabel.TextSize = 12
     RGBLabel.Text = "🔎 Script by - @Luminaprojects"
     RGBLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+    RGBLabel.Parent = mainFrame
 
     coroutine.wrap(function()
         while task.wait() do
