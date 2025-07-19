@@ -1,92 +1,101 @@
-if game.PlaceId ~= 96384896875593 then
-	return warn("Script ini hanya untuk Memory Murder!")
+if game.PlaceId ~= 9638489687 then
+    return warn("❌ This script only works in Memory Murder.")
 end
 
+local userKey = "LUMINAKEY_pxs0up8r2bh2j19"
+local getKeyURL = "https://get-key-luminakey.vercel.app/"
+local mainScriptURL = "https://raw.githubusercontent.com/Luminaxhub/Games/refs/heads/main/Memory%20Murder.lua"
+
 -- UI Setup
-local HttpService = game:GetService("HttpService")
-local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
 
--- UI Instance
-local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-ScreenGui.Name = "LuminakeyUI"
-ScreenGui.ResetOnSpawn = false
+local screenGui = Instance.new("ScreenGui", PlayerGui)
+screenGui.Name = "Lumina_KeyUI"
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-local Frame = Instance.new("Frame", ScreenGui)
-Frame.AnchorPoint = Vector2.new(0.5, 0.5)
-Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
-Frame.Size = UDim2.new(0, 370, 0, 180)
-Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-Frame.BackgroundTransparency = 0.2
-Frame.BorderSizePixel = 0
-Frame.ClipsDescendants = true
+local blur = Instance.new("BlurEffect", game:GetService("Lighting"))
+blur.Size = 15
 
--- UICorner
-local UICorner = Instance.new("UICorner", Frame)
-UICorner.CornerRadius = UDim.new(0, 12)
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 350, 0, 200)
+frame.Position = UDim2.new(0.5, -175, 0.5, -100)
+frame.BackgroundTransparency = 0.25
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.Parent = screenGui
+frame.Active = true
+frame.Draggable = true
 
--- Title
-local Title = Instance.new("TextLabel", Frame)
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.BackgroundTransparency = 1
-Title.Text = "🔐 Key system"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 18
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
 
--- Input
-local Input = Instance.new("TextBox", Frame)
-Input.PlaceholderText = "Enter your key..."
-Input.Size = UDim2.new(0.85, 0, 0, 35)
-Input.Position = UDim2.new(0.075, 0, 0.45, 0)
-Input.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-Input.TextColor3 = Color3.fromRGB(255, 255, 255)
-Input.Font = Enum.Font.Gotham
-Input.TextSize = 16
-Input.ClearTextOnFocus = false
-Instance.new("UICorner", Input).CornerRadius = UDim.new(0, 6)
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundTransparency = 1
+title.Text = "🔐 Key system"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 22
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
 
--- Button
-local Button = Instance.new("TextButton", Frame)
-Button.Size = UDim2.new(0.85, 0, 0, 35)
-Button.Position = UDim2.new(0.075, 0, 0.75, 0)
-Button.Text = "✅ Verify"
-Button.Font = Enum.Font.GothamBold
-Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-Button.TextSize = 16
-Button.BackgroundColor3 = Color3.fromRGB(40, 130, 255)
-Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
+local keyBox = Instance.new("TextBox", frame)
+keyBox.PlaceholderText = "Enter key here..."
+keyBox.Size = UDim2.new(0.9, 0, 0, 40)
+keyBox.Position = UDim2.new(0.05, 0, 0, 55)
+keyBox.Text = ""
+keyBox.Font = Enum.Font.Gotham
+keyBox.TextSize = 16
+keyBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+keyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", keyBox).CornerRadius = UDim.new(0, 8)
 
--- GetKey Text
-local GetKeyText = Instance.new("TextLabel", Frame)
-GetKeyText.Text = "🔗 Get Key: https://get-key-luminakey.vercel.app/"
-GetKeyText.Position = UDim2.new(0.05, 0, 0.88, 0)
-GetKeyText.Size = UDim2.new(0.9, 0, 0, 20)
-GetKeyText.BackgroundTransparency = 1
-GetKeyText.TextColor3 = Color3.fromRGB(255, 255, 255)
-GetKeyText.Font = Enum.Font.Gotham
-GetKeyText.TextScaled = true
-GetKeyText.TextWrapped = true
+-- Verify Button
+local verifyBtn = Instance.new("TextButton", frame)
+verifyBtn.Size = UDim2.new(0.9, 0, 0, 35)
+verifyBtn.Position = UDim2.new(0.05, 0, 0, 105)
+verifyBtn.Text = "✅ Verify"
+verifyBtn.Font = Enum.Font.GothamBold
+verifyBtn.TextSize = 16
+verifyBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 127)
+verifyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", verifyBtn).CornerRadius = UDim.new(0, 6)
 
--- Animation (tween masuk)
-TweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-	Position = UDim2.new(0.5, 0, 0.5, 0)
-}):Play()
+-- Get Key (link)
+local linkText = Instance.new("TextLabel", frame)
+linkText.Size = UDim2.new(0.9, 0, 0, 30)
+linkText.Position = UDim2.new(0.05, 0, 1, -35)
+linkText.Text = "🔗 Get Key: " .. getKeyURL
+linkText.Font = Enum.Font.Gotham
+linkText.TextSize = 13
+linkText.TextColor3 = Color3.fromRGB(180, 180, 255)
+linkText.TextWrapped = true
+linkText.BackgroundTransparency = 1
 
--- KEY
-local ValidKey = "LUMINAKEY_pxs0up8r2bh2j19"
+-- Close Button
+local closeBtn = Instance.new("TextButton", frame)
+closeBtn.Text = "✕"
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 14
+closeBtn.TextColor3 = Color3.fromRGB(255, 80, 80)
+closeBtn.BackgroundTransparency = 1
 
-Button.MouseButton1Click:Connect(function()
-	if Input.Text == ValidKey then
-		Button.Text = "✅ Verified!"
-		wait(0.5)
-		ScreenGui:Destroy()
-		-- Load main script after verify
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/Luminaxhub/Games/refs/heads/main/Memory%20Murder.lua"))()
-	else
-		Button.Text = "❌ Invalid Key!"
-		wait(1)
-		Button.Text = "✅ Verify"
-	end
+-- Verify Click
+verifyBtn.MouseButton1Click:Connect(function()
+    if keyBox.Text == userKey then
+        verifyBtn.Text = "Loading..."
+        wait(1)
+        screenGui:Destroy()
+        blur:Destroy()
+        loadstring(game:HttpGet(mainScriptURL))()
+    else
+        keyBox.Text = ""
+        keyBox.PlaceholderText = "❌ Invalid Key"
+    end
+end)
+
+-- Close GUI
+closeBtn.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+    blur:Destroy()
 end)
