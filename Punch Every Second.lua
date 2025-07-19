@@ -58,25 +58,26 @@ Instance.new("UICorner", checkKeyButton).CornerRadius = UDim.new(0, 6)
 local VALID_KEY = "LUMINAKEY_pxs0up8r2bh2j19"
 
 checkKeyButton.MouseButton1Click:Connect(function()
-    local inputKey = keyBox.Text
-    if inputKey == VALID_KEY then
-        checkKeyButton.Text = "🔓 Access Granted!"
-        checkKeyButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-        wait(1)
-        keySystem.UI:Destroy()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Luminaxhub/Games/refs/heads/main/1%2B%20punch%20every%20second.lua"))()
-    else
-        checkKeyButton.Text = "❌ Invalid Key!"
-        checkKeyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-        wait(1.5)
-        checkKeyButton.Text = "✅ Verify Key"
-        checkKeyButton.BackgroundColor3 = Color3.fromRGB(80, 180, 80)
-    end
+	local inputKey = keyBox.Text
+	if inputKey == VALID_KEY then
+		checkKeyButton.Text = "🔓 Access Granted!"
+		checkKeyButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+		wait(1)
+		keySystem.UI:Destroy()
+		-- EXECUTE MAIN SCRIPT
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Luminaxhub/Games/refs/heads/main/1%2B%20punch%20every%20second.lua"))()
+	else
+		checkKeyButton.Text = "❌ Invalid Key!"
+		checkKeyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+		wait(1.5)
+		checkKeyButton.Text = "✅ Verify Key"
+		checkKeyButton.BackgroundColor3 = Color3.fromRGB(80, 180, 80)
+	end
 end)
 
 getKeyButton.MouseButton1Click:Connect(function()
-    setclipboard("https://get-key-luminakey.vercel.app/")
-    getKeyButton.Text = "📋 Link Copied!"
-    wait(1.5)
-    getKeyButton.Text = "🌐 Get Key"
+	setclipboard("https://get-key-luminakey.vercel.app/")
+	getKeyButton.Text = "📋 Link Copied!"
+	wait(1.5)
+	getKeyButton.Text = "🌐 Get Key"
 end)
