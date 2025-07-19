@@ -1,128 +1,105 @@
--- 📦 Memory Murder UI Script by @Luminaprojects
+-- Memory Murder UI by @Luminaprojects
+-- ✅ Semua fitur aktif dan profesional
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 
--- Main UI
+-- UI Setup
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 ScreenGui.Name = "MemoryMurderUI"
 ScreenGui.ResetOnSpawn = false
 
-local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 320, 0, 230)
-MainFrame.Position = UDim2.new(0.5, -160, 0.5, -115)
-MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-MainFrame.BorderSizePixel = 0
-MainFrame.Active = true
-MainFrame.Draggable = true
+local Main = Instance.new("Frame", ScreenGui)
+Main.Name = "Main"
+Main.Size = UDim2.new(0, 300, 0, 280)
+Main.Position = UDim2.new(0.3, 0, 0.3, 0)
+Main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Main.BorderSizePixel = 0
+Main.BackgroundTransparency = 0.2
+Main.Active = true
+Main.Draggable = true
 
-local UICorner = Instance.new("UICorner", MainFrame)
-UICorner.CornerRadius = UDim.new(0, 12)
+local UICorner = Instance.new("UICorner", Main)
+UICorner.CornerRadius = UDim.new(0, 10)
 
--- Title
-local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.BackgroundTransparency = 1
-Title.Text = "📦 Memory Murder"
-Title.Font = Enum.Font.GothamBold
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.TextScaled = true
+local UIListLayout = Instance.new("UIListLayout", Main)
+UIListLayout.Padding = UDim.new(0, 6)
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- Toggle UI button
-local ToggleButton = Instance.new("TextButton", ScreenGui)
-ToggleButton.Size = UDim2.new(0, 120, 0, 35)
-ToggleButton.Position = UDim2.new(0, 10, 0.4, 0)
-ToggleButton.Text = "🔘 TOGGLE UI"
-ToggleButton.Font = Enum.Font.Gotham
-ToggleButton.TextSize = 16
-ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 8)
-
-ToggleButton.MouseButton1Click:Connect(function()
-	MainFrame.Visible = not MainFrame.Visible
+-- Toggle Button
+local toggleButton = Instance.new("TextButton", ScreenGui)
+toggleButton.Text = "🟢 OPEN UI"
+toggleButton.Position = UDim2.new(0, 10, 0.1, 0)
+toggleButton.Size = UDim2.new(0, 120, 0, 35)
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 127)
+toggleButton.TextColor3 = Color3.new(1, 1, 1)
+toggleButton.AutoButtonColor = true
+toggleButton.MouseButton1Click:Connect(function()
+	Main.Visible = not Main.Visible
 end)
 
--- Function: Create slider
-local function createSlider(parent, name, min, max, default, callback)
-	local label = Instance.new("TextLabel", parent)
-	label.Size = UDim2.new(1, -20, 0, 20)
-	label.Position = UDim2.new(0, 10, 0, #parent:GetChildren() * 25 + 5)
-	label.BackgroundTransparency = 1
-	label.Text = name .. ": " .. default
-	label.TextColor3 = Color3.new(1, 1, 1)
-	label.Font = Enum.Font.Gotham
-	label.TextSize = 14
-	label.TextXAlignment = Enum.TextXAlignment.Left
+-- RGB Credit
+local credit = Instance.new("TextLabel", Main)
+credit.Text = "🔎 Script by - @Luminaprojects"
+credit.Size = UDim2.new(1, -10, 0, 30)
+credit.TextScaled = true
+credit.BackgroundTransparency = 1
+credit.TextColor3 = Color3.fromRGB(255, 0, 0)
 
-	local slider = Instance.new("TextButton", parent)
-	slider.Size = UDim2.new(1, -20, 0, 20)
-	slider.Position = label.Position + UDim2.new(0, 0, 0, 20)
-	slider.Text = ""
-	slider.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-	slider.AutoButtonColor = false
-	Instance.new("UICorner", slider).CornerRadius = UDim.new(0, 6)
-
-	local fill = Instance.new("Frame", slider)
-	fill.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
-	fill.Size = UDim2.new((default - min)/(max - min), 0, 1, 0)
-	fill.Position = UDim2.new(0, 0, 0, 0)
-	fill.BorderSizePixel = 0
-	Instance.new("UICorner", fill).CornerRadius = UDim.new(0, 6)
-
-	local dragging = false
-	slider.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-		end
-	end)
-	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = false
-		end
-	end)
-	UserInputService.InputChanged:Connect(function(input)
-		if dragging and input.Position then
-			local x = input.Position.X - slider.AbsolutePosition.X
-			local percent = math.clamp(x / slider.AbsoluteSize.X, 0, 1)
-			fill.Size = UDim2.new(percent, 0, 1, 0)
-			local value = math.floor(min + (max - min) * percent)
-			label.Text = name .. ": " .. value
-			callback(value)
-		end
-	end)
-end
+spawn(function()
+	while task.wait() do
+		credit.TextColor3 = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+	end
+end)
 
 -- Walkspeed Slider
-createSlider(MainFrame, "Walkspeed", 16, 200, 16, function(v)
-	LocalPlayer.Character.Humanoid.WalkSpeed = v
+local WalkspeedSlider = Instance.new("TextBox", Main)
+WalkspeedSlider.PlaceholderText = "WalkSpeed (default 16)"
+WalkspeedSlider.Size = UDim2.new(0.9, 0, 0, 30)
+WalkspeedSlider.Text = ""
+WalkspeedSlider.TextScaled = true
+WalkspeedSlider.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+WalkspeedSlider.TextColor3 = Color3.new(1, 1, 1)
+WalkspeedSlider.FocusLost:Connect(function()
+	local val = tonumber(WalkspeedSlider.Text)
+	if val then
+		LocalPlayer.Character.Humanoid.WalkSpeed = val
+	end
 end)
 
--- Jumppower Slider
-createSlider(MainFrame, "JumpPower", 50, 200, 50, function(v)
-	LocalPlayer.Character.Humanoid.JumpPower = v
+-- JumpPower Slider
+local JumpSlider = Instance.new("TextBox", Main)
+JumpSlider.PlaceholderText = "JumpPower (default 50)"
+JumpSlider.Size = UDim2.new(0.9, 0, 0, 30)
+JumpSlider.Text = ""
+JumpSlider.TextScaled = true
+JumpSlider.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+JumpSlider.TextColor3 = Color3.new(1, 1, 1)
+JumpSlider.FocusLost:Connect(function()
+	local val = tonumber(JumpSlider.Text)
+	if val then
+		LocalPlayer.Character.Humanoid.JumpPower = val
+	end
 end)
 
--- Noclip
-local noclipEnabled = false
-local noclipBtn = Instance.new("TextButton", MainFrame)
-noclipBtn.Size = UDim2.new(1, -20, 0, 30)
-noclipBtn.Position = UDim2.new(0, 10, 0, 160)
-noclipBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-noclipBtn.Text = "🚪 Noclip: OFF"
-noclipBtn.Font = Enum.Font.GothamBold
-noclipBtn.TextColor3 = Color3.new(1, 1, 1)
-noclipBtn.TextSize = 14
-Instance.new("UICorner", noclipBtn).CornerRadius = UDim.new(0, 6)
+-- NoClip Toggle
+local Noclip = false
+local NoclipBtn = Instance.new("TextButton", Main)
+NoclipBtn.Text = "❌ NoClip OFF"
+NoclipBtn.Size = UDim2.new(0.9, 0, 0, 30)
+NoclipBtn.TextScaled = true
+NoclipBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+NoclipBtn.TextColor3 = Color3.new(1, 1, 1)
 
-noclipBtn.MouseButton1Click:Connect(function()
-	noclipEnabled = not noclipEnabled
-	noclipBtn.Text = "🚪 Noclip: " .. (noclipEnabled and "ON" or "OFF")
+NoclipBtn.MouseButton1Click:Connect(function()
+	Noclip = not Noclip
+	NoclipBtn.Text = Noclip and "✅ NoClip ON" or "❌ NoClip OFF"
 end)
 
-game:GetService("RunService").Stepped:Connect(function()
-	if noclipEnabled and LocalPlayer.Character then
+RunService.Stepped:Connect(function()
+	if Noclip and LocalPlayer.Character then
 		for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
 			if v:IsA("BasePart") and v.CanCollide == true then
 				v.CanCollide = false
@@ -131,24 +108,5 @@ game:GetService("RunService").Stepped:Connect(function()
 	end
 end)
 
--- RGB Credit
-local rgbText = Instance.new("TextLabel", ScreenGui)
-rgbText.Size = UDim2.new(0, 300, 0, 25)
-rgbText.Position = UDim2.new(0.5, -150, 1, -30)
-rgbText.BackgroundTransparency = 1
-rgbText.Text = "🔎 Script by - @Luminaprojects"
-rgbText.Font = Enum.Font.GothamBold
-rgbText.TextSize = 14
-rgbText.TextColor3 = Color3.new(1, 0, 0)
-
-task.spawn(function()
-	while true do
-		for i = 0, 1, 0.01 do
-			rgbText.TextColor3 = Color3.fromHSV(i, 1, 1)
-			wait()
-		end
-	end
-end)
-
--- Inject script
+-- Script Loader
 loadstring(game:HttpGet("https://raw.githubusercontent.com/rndmq/Serverlist/refs/heads/main/Loader"))()
