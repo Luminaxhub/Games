@@ -1,4 +1,9 @@
---✨ Memory Murder UI Loader with Key System (English Version)
+-- ✅ Game Lock: Memory Murder only
+if game.PlaceId ~= 9638489687 then
+    return warn("🚫 This script only works in Memory Murder.")
+end
+
+-- ✅ Key UI by @Luminaprojects
 local userKey = "LUMINAKEY_pxs0up8r2bh2j19"
 local getKeyURL = "https://get-key-luminakey.vercel.app/"
 local mainScript = "https://raw.githubusercontent.com/Luminaxhub/Games/refs/heads/main/Memory%20Murder.lua"
@@ -17,8 +22,7 @@ local function createUI()
     mainFrame.Active = true
     mainFrame.Draggable = true
 
-    local UICorner = Instance.new("UICorner", mainFrame)
-    UICorner.CornerRadius = UDim.new(0, 10)
+    Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
 
     local title = Instance.new("TextLabel", mainFrame)
     title.Size = UDim2.new(1, 0, 0, 35)
@@ -38,9 +42,7 @@ local function createUI()
     keyBox.TextSize = 14
     keyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
     keyBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-
-    local UICorner2 = Instance.new("UICorner", keyBox)
-    UICorner2.CornerRadius = UDim.new(0, 6)
+    Instance.new("UICorner", keyBox).CornerRadius = UDim.new(0, 6)
 
     local getKeyBtn = Instance.new("TextButton", mainFrame)
     getKeyBtn.Size = UDim2.new(0.42, 0, 0, 30)
@@ -95,7 +97,6 @@ local function createUI()
     RGBLabel.Text = "🔎 Script by - @Luminaprojects"
     RGBLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
 
-    -- RGB Animation
     coroutine.wrap(function()
         while task.wait() do
             for i = 0, 1, 0.01 do
