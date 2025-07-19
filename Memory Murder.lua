@@ -1,5 +1,6 @@
--- Memory Murder UI by @Luminaprojects
--- ✅ Semua fitur aktif dan profesional
+if game.PlaceId ~= 9638489687 then
+    return warn("This script only works in Memory Murder.")
+end
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
