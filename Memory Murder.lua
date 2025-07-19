@@ -1,6 +1,6 @@
 -- Lock script to Game ID
 if game.PlaceId ~= 15532760521 then
-	return warn("Script ini hanya bisa digunakan di game tertentu.")
+	return warn("This script can only be used in the game memory murder.")
 end
 
 -- Services
