@@ -1,190 +1,223 @@
--- 🌟 Shrink Hide & Seek ESP UI with Skeleton, Hitbox, Noclip & RGB Effects - Script by @Luminaprojects
-
+-- 🌟 Shrink Hide & Seek UI - Script by @Luminaprojects
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
-local camera = workspace.CurrentCamera
+local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
--- Settings
-local esp_settings = {
-    enabled = true,
-    skel_col = Color3.fromRGB(255, 255, 255),
-    hitbox_size = 10,
-    hitbox_enabled = false,
-    noclip_enabled = false
-}
+-- CONFIG
+_G.ESP = false
+_G.Noclip = false
+_G.Hitbox = false
+local HitboxSize = 10
 
--- UI Elements
-local ui = Instance.new("ScreenGui", game.CoreGui)
-ui.Name = "ESP_UI"
+-- CREATE UI
+local MainUI = Instance.new("ScreenGui", game.CoreGui)
+MainUI.Name = "ShrinkUI"
 
-local main = Instance.new("Frame", ui)
-main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-main.BorderSizePixel = 2
-main.Position = UDim2.new(0, 100, 0, 100)
-main.Size = UDim2.new(0, 250, 0, 220)
-main.Active = true
-main.Draggable = true
+local Frame = Instance.new("Frame", MainUI)
+Frame.Size = UDim2.new(0, 170, 0, 250)
+Frame.Position = UDim2.new(0, 20, 0.5, -125)
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Draggable = true
 
-local corner = Instance.new("UICorner", main)
-corner.CornerRadius = UDim.new(0, 8)
+local UICorner = Instance.new("UICorner", Frame)
+UICorner.CornerRadius = UDim.new(0, 8)
 
--- RGB Border Effect
+local RGBBorder = Instance.new("UIStroke", Frame)
+RGBBorder.Thickness = 2
+RGBBorder.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+RGBBorder.LineJoinMode = Enum.LineJoinMode.Round
+
+-- RGB ANIMATION
 spawn(function()
+    local t = 0
     while true do
-        for i = 0, 1, 0.01 do
-            main.BorderColor3 = Color3.fromHSV(i, 1, 1)
-            task.wait()
-        end
+        t = t + 0.01
+        local r = math.sin(t) * 127 + 128
+        local g = math.sin(t + 2) * 127 + 128
+        local b = math.sin(t + 4) * 127 + 128
+        RGBBorder.Color = ColorSequence.new(Color3.fromRGB(r, g, b))
+        wait(0.02)
     end
 end)
 
--- Title
-local title = Instance.new("TextLabel", main)
-title.BackgroundTransparency = 1
-title.Size = UDim2.new(1, 0, 0, 25)
-title.Text = "⛺ Shrink Hide & Seek"
-title.Font = Enum.Font.GothamBold
-title.TextSize = 16
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
+-- TITLE
+local Title = Instance.new("TextLabel", Frame)
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundTransparency = 1
+Title.Text = "⛺ Shrink ESP UI"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 16
+Title.Font = Enum.Font.GothamBold
 
--- Toggle UI Button
-local toggleUI = Instance.new("TextButton", ui)
-toggleUI.Position = UDim2.new(0, 10, 0, 10)
-toggleUI.Size = UDim2.new(0, 40, 0, 40)
-toggleUI.Text = "⚙️"
-toggleUI.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-toggleUI.TextColor3 = Color3.new(1, 1, 1)
+-- CREDIT
+local Credit = Instance.new("TextLabel", Frame)
+Credit.Size = UDim2.new(1, 0, 0, 20)
+Credit.Position = UDim2.new(0, 0, 1, -20)
+Credit.BackgroundTransparency = 1
+Credit.Text = "Script by - @Luminaprojects"
+Credit.TextSize = 13
+Credit.Font = Enum.Font.GothamSemibold
+Credit.TextColor3 = Color3.new(1, 1, 1)
 
-local toggleCorner = Instance.new("UICorner", toggleUI)
-toggleCorner.CornerRadius = UDim.new(1, 0)
-
--- RGB Border Effect on toggle
+-- RGB CREDIT
 spawn(function()
+    local t = 0
     while true do
-        for i = 0, 1, 0.01 do
-            toggleUI.BorderColor3 = Color3.fromHSV(i, 1, 1)
-            toggleUI.BorderSizePixel = 2
-            task.wait()
-        end
+        t = t + 0.03
+        local r = math.sin(t) * 127 + 128
+        local g = math.sin(t + 2) * 127 + 128
+        local b = math.sin(t + 4) * 127 + 128
+        Credit.TextColor3 = Color3.fromRGB(r, g, b)
+        wait()
     end
 end)
 
-toggleUI.MouseButton1Click:Connect(function()
-    main.Visible = not main.Visible
-end)
+-- BUTTON TEMPLATE
+local function CreateToggle(text, state, callback)
+    local Toggle = Instance.new("TextButton", Frame)
+    Toggle.Size = UDim2.new(1, -20, 0, 30)
+    Toggle.Position = UDim2.new(0, 10, 0, #Frame:GetChildren() * 35)
+    Toggle.BackgroundColor3 = state and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(170, 0, 0)
+    Toggle.Text = text
+    Toggle.TextColor3 = Color3.new(1, 1, 1)
+    Toggle.TextSize = 14
+    Toggle.Font = Enum.Font.GothamSemibold
 
--- Create Toggle Button Function
-local function createToggle(name, parent, callback)
-    local btn = Instance.new("TextButton", parent)
-    btn.Size = UDim2.new(0.9, 0, 0, 30)
-    btn.Position = UDim2.new(0.05, 0, 0, #parent:GetChildren() * 35)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 14
-    btn.TextColor3 = Color3.new(1, 1, 1)
-    btn.BackgroundColor3 = Color3.fromRGB(60, 150, 60)
-    btn.Text = name .. ": ON"
+    local corner = Instance.new("UICorner", Toggle)
+    corner.CornerRadius = UDim.new(0, 6)
 
-    local state = true
-    btn.MouseButton1Click:Connect(function()
+    Toggle.MouseButton1Click:Connect(function()
         state = not state
-        btn.BackgroundColor3 = state and Color3.fromRGB(60, 150, 60) or Color3.fromRGB(150, 60, 60)
-        btn.Text = name .. (state and ": ON" or ": OFF")
+        Toggle.BackgroundColor3 = state and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(170, 0, 0)
         callback(state)
     end)
-
-    local corner = Instance.new("UICorner", btn)
-    corner.CornerRadius = UDim.new(0, 4)
 end
 
--- ESP Toggle
-createToggle("ESP", main, function(val)
-    esp_settings.enabled = val
-end)
+-- ESP Function
+local ESPTrackers = {}
+local function CreateESP(player)
+    if not player.Character then return end
 
--- Noclip Toggle
-createToggle("Noclip", main, function(val)
-    esp_settings.noclip_enabled = val
-end)
+    local Billboard = Instance.new("BillboardGui")
+    Billboard.Size = UDim2.new(0, 100, 0, 20)
+    Billboard.Adornee = player.Character:FindFirstChild("Head")
+    Billboard.AlwaysOnTop = true
+    Billboard.Name = "_ESP"
 
--- Hitbox Toggle
-createToggle("Hitbox", main, function(val)
-    esp_settings.hitbox_enabled = val
-end)
+    local Tag = Instance.new("TextLabel", Billboard)
+    Tag.Size = UDim2.new(1, 0, 1, 0)
+    Tag.BackgroundTransparency = 1
+    Tag.Text = "👤 " .. player.Name
+    Tag.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Tag.TextStrokeTransparency = 0.5
+    Tag.TextSize = 13
+    Tag.Font = Enum.Font.GothamBold
 
--- Hitbox Size Slider
-local hitboxLabel = Instance.new("TextLabel", main)
-hitboxLabel.Text = "Hitbox Size"
-hitboxLabel.Size = UDim2.new(0.9, 0, 0, 20)
-hitboxLabel.Position = UDim2.new(0.05, 0, 0, 150)
-hitboxLabel.BackgroundTransparency = 1
-hitboxLabel.TextColor3 = Color3.new(1, 1, 1)
-hitboxLabel.Font = Enum.Font.Gotham
-hitboxLabel.TextSize = 14
+    Billboard.Parent = player.Character:FindFirstChild("Head")
+    ESPTrackers[player] = Billboard
+end
 
-local hitboxSlider = Instance.new("TextBox", main)
-hitboxSlider.Size = UDim2.new(0.9, 0, 0, 30)
-hitboxSlider.Position = UDim2.new(0.05, 0, 0, 175)
-hitboxSlider.PlaceholderText = "0 - 100"
-hitboxSlider.Text = tostring(esp_settings.hitbox_size)
-hitboxSlider.TextColor3 = Color3.new(1, 1, 1)
-hitboxSlider.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-hitboxSlider.Font = Enum.Font.Gotham
-hitboxSlider.TextSize = 14
-
-hitboxSlider.FocusLost:Connect(function()
-    local val = tonumber(hitboxSlider.Text)
-    if val and val >= 0 and val <= 100 then
-        esp_settings.hitbox_size = val
-    else
-        hitboxSlider.Text = tostring(esp_settings.hitbox_size)
+local function RemoveESP(player)
+    if ESPTrackers[player] then
+        ESPTrackers[player]:Destroy()
+        ESPTrackers[player] = nil
     end
-end)
+end
 
--- RGB Credit
-local credit = Instance.new("TextLabel", ui)
-credit.Position = UDim2.new(0, 10, 1, -30)
-credit.Size = UDim2.new(0, 300, 0, 25)
-credit.Text = "Script by - @Luminaprojects"
-credit.Font = Enum.Font.GothamBold
-credit.TextSize = 14
-credit.BackgroundTransparency = 1
-credit.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-spawn(function()
-    while true do
-        for i = 0, 1, 0.01 do
-            credit.TextColor3 = Color3.fromHSV(i, 1, 1)
-            task.wait()
-        end
-    end
-end)
-
--- Noclip Logic
-RunService.Stepped:Connect(function()
-    if esp_settings.noclip_enabled then
-        for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.CanCollide = false
+-- Main Toggles
+CreateToggle("👀 ESP HIDERS", _G.ESP, function(state)
+    _G.ESP = state
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer then
+            RemoveESP(p)
+            if state and p.Team and p.Team.Name:lower():find("hider") then
+                CreateESP(p)
             end
         end
     end
 end)
 
--- Hitbox Logic
+CreateToggle("🚪 Noclip", _G.Noclip, function(state)
+    _G.Noclip = state
+end)
+
+CreateToggle("📦 Hitbox", _G.Hitbox, function(state)
+    _G.Hitbox = state
+end)
+
+-- HITBOX SLIDER
+local HitboxLabel = Instance.new("TextLabel", Frame)
+HitboxLabel.Size = UDim2.new(1, -20, 0, 20)
+HitboxLabel.Position = UDim2.new(0, 10, 0, #Frame:GetChildren() * 35)
+HitboxLabel.BackgroundTransparency = 1
+HitboxLabel.Text = "📏 Hitbox Size: " .. HitboxSize
+HitboxLabel.TextColor3 = Color3.new(1, 1, 1)
+HitboxLabel.TextSize = 14
+HitboxLabel.Font = Enum.Font.Gotham
+
+local HitboxSlider = Instance.new("TextButton", Frame)
+HitboxSlider.Size = UDim2.new(1, -20, 0, 20)
+HitboxSlider.Position = HitboxLabel.Position + UDim2.new(0, 0, 0, 25)
+HitboxSlider.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+HitboxSlider.Text = "Slide Me (Android Support)"
+HitboxSlider.TextColor3 = Color3.new(1,1,1)
+HitboxSlider.TextSize = 13
+HitboxSlider.Font = Enum.Font.Gotham
+
+local sliderCorner = Instance.new("UICorner", HitboxSlider)
+sliderCorner.CornerRadius = UDim.new(0, 6)
+
+HitboxSlider.MouseButton1Down:Connect(function()
+    local conn
+    conn = UIS.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            local mouseX = UIS:GetMouseLocation().X
+            local scale = math.clamp((mouseX - HitboxSlider.AbsolutePosition.X) / HitboxSlider.AbsoluteSize.X, 0, 1)
+            HitboxSize = math.floor(scale * 100)
+            HitboxLabel.Text = "📏 Hitbox Size: " .. HitboxSize
+        end
+    end)
+    UIS.InputEnded:Wait()
+    conn:Disconnect()
+end)
+
+-- ESP Loop
 RunService.RenderStepped:Connect(function()
-    if esp_settings.hitbox_enabled then
-        for _, plr in pairs(Players:GetPlayers()) do
-            if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-                local hrp = plr.Character.HumanoidRootPart
-                hrp.Size = Vector3.new(esp_settings.hitbox_size, esp_settings.hitbox_size, esp_settings.hitbox_size)
-                hrp.Transparency = 0.7
-                hrp.BrickColor = BrickColor.new("Really blue")
-                hrp.Material = "Neon"
-                hrp.CanCollide = false
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer then
+            if _G.ESP and p.Team and p.Team.Name:lower():find("hider") then
+                if not ESPTrackers[p] then
+                    CreateESP(p)
+                end
+            else
+                RemoveESP(p)
+            end
+
+            if _G.Hitbox and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                p.Character.HumanoidRootPart.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
+                p.Character.HumanoidRootPart.Transparency = 0.7
+                p.Character.HumanoidRootPart.Material = Enum.Material.Neon
+                p.Character.HumanoidRootPart.BrickColor = BrickColor.new("Really red")
+            elseif p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                p.Character.HumanoidRootPart.Size = Vector3.new(2,2,1)
+                p.Character.HumanoidRootPart.Transparency = 0
+                p.Character.HumanoidRootPart.Material = Enum.Material.Plastic
             end
         end
     end
 end)
 
--- TODO: ESP Box/Tracer/Skeleton Implementation Here
+-- Noclip Loop
+RunService.Stepped:Connect(function()
+    if _G.Noclip and LocalPlayer.Character then
+        for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
