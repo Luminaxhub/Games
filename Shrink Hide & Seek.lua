@@ -1,102 +1,199 @@
--- ⛺ Shrink Hide & Seek UI Script by @Luminaprojects
--- FINAL VERSION (✅ Stable, Full Feature, Android Support)
+-- ⛺ Shirnk Hide & Seek Script by @Luminaprojects
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
-local RS = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
 
--- UI Toggle Button
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 130, 0, 36)
-toggleBtn.Position = UDim2.new(0, 15, 0.5, -100)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
-toggleBtn.Text = "⛺ OPEN"
-toggleBtn.TextColor3 = Color3.fromRGB(255,255,255)
-toggleBtn.Font = Enum.Font.SourceSansBold
-toggleBtn.TextSize = 18
-toggleBtn.BorderSizePixel = 2
-toggleBtn.Parent = game.CoreGui
-toggleBtn.Active = true
-toggleBtn.Draggable = true
+-- CONFIG
+_G.ESP = false
+_G.HeadSize = 5
+_G.Disabled = false
+_G.Noclip = false
 
--- RGB Border Effect
-task.spawn(function()
-	while true do
-		for i = 0, 1, 0.01 do
-			toggleBtn.BorderColor3 = Color3.fromHSV(i, 1, 1)
-			task.wait()
+-- UI Setup
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "ShirnkUI"
+
+-- Toggle Button
+local ToggleBtn = Instance.new("TextButton", ScreenGui)
+ToggleBtn.Size = UDim2.new(0, 100, 0, 35)
+ToggleBtn.Position = UDim2.new(0, 20, 0.5, -80)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ToggleBtn.BorderSizePixel = 3
+ToggleBtn.Text = "⛺ OPEN"
+ToggleBtn.TextColor3 = Color3.new(1,1,1)
+ToggleBtn.Font = Enum.Font.GothamBold
+ToggleBtn.TextSize = 14
+
+-- RGB Border
+local hue = 0
+RunService.RenderStepped:Connect(function()
+	hue = (hue + 1) % 255
+	ToggleBtn.BorderColor3 = Color3.fromHSV(hue/255, 1, 1)
+end)
+
+-- Main Frame
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 300, 0, 380)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -190)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+MainFrame.BorderSizePixel = 0
+MainFrame.Visible = false
+
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundTransparency = 1
+Title.Text = "⛺ Shirnk Hide & Seek."
+Title.TextColor3 = Color3.new(1,1,1)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+
+-- ESP Toggle
+local EspBtn = Instance.new("TextButton", MainFrame)
+EspBtn.Size = UDim2.new(0.9, 0, 0, 30)
+EspBtn.Position = UDim2.new(0.05, 0, 0, 50)
+EspBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+EspBtn.Text = "👀 HIDERS [OFF]"
+EspBtn.TextColor3 = Color3.new(1, 1, 1)
+EspBtn.Font = Enum.Font.GothamBold
+EspBtn.TextSize = 14
+
+EspBtn.MouseButton1Click:Connect(function()
+	_G.ESP = not _G.ESP
+	EspBtn.BackgroundColor3 = _G.ESP and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+	EspBtn.Text = _G.ESP and "👀 HIDERS [ON]" or "👀 HIDERS [OFF]"
+end)
+
+-- Hitbox Slider
+local HitboxSlider = Instance.new("TextButton", MainFrame)
+HitboxSlider.Size = UDim2.new(0.9, 0, 0, 30)
+HitboxSlider.Position = UDim2.new(0.05, 0, 0, 90)
+HitboxSlider.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+HitboxSlider.Text = "Hitbox Size: 5"
+HitboxSlider.TextColor3 = Color3.new(1, 1, 1)
+HitboxSlider.Font = Enum.Font.Gotham
+HitboxSlider.TextSize = 14
+
+HitboxSlider.MouseButton1Click:Connect(function()
+	_G.HeadSize = _G.HeadSize + 5
+	if _G.HeadSize > 100 then _G.HeadSize = 5 end
+	HitboxSlider.Text = "Hitbox Size: ".._G.HeadSize
+end)
+
+-- Toggle Hitbox ON/OFF
+local HitboxToggle = Instance.new("TextButton", MainFrame)
+HitboxToggle.Size = UDim2.new(0.9, 0, 0, 30)
+HitboxToggle.Position = UDim2.new(0.05, 0, 0, 130)
+HitboxToggle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+HitboxToggle.Text = "Hitbox [OFF]"
+HitboxToggle.TextColor3 = Color3.new(1, 1, 1)
+HitboxToggle.Font = Enum.Font.GothamBold
+HitboxToggle.TextSize = 14
+
+HitboxToggle.MouseButton1Click:Connect(function()
+	_G.Disabled = not _G.Disabled
+	HitboxToggle.BackgroundColor3 = _G.Disabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+	HitboxToggle.Text = _G.Disabled and "Hitbox [ON]" or "Hitbox [OFF]"
+end)
+
+-- NoClip
+local NoclipBtn = Instance.new("TextButton", MainFrame)
+NoclipBtn.Size = UDim2.new(0.9, 0, 0, 30)
+NoclipBtn.Position = UDim2.new(0.05, 0, 0, 170)
+NoclipBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+NoclipBtn.Text = "NoClip [OFF]"
+NoclipBtn.TextColor3 = Color3.new(1, 1, 1)
+NoclipBtn.Font = Enum.Font.GothamBold
+NoclipBtn.TextSize = 14
+
+NoclipBtn.MouseButton1Click:Connect(function()
+	_G.Noclip = not _G.Noclip
+	NoclipBtn.BackgroundColor3 = _G.Noclip and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+	NoclipBtn.Text = _G.Noclip and "NoClip [ON]" or "NoClip [OFF]"
+end)
+
+-- AutoSpin + Mini Mode
+local AutoSpin = Instance.new("TextLabel", MainFrame)
+AutoSpin.Size = UDim2.new(1, 0, 0, 30)
+AutoSpin.Position = UDim2.new(0, 0, 0, 210)
+AutoSpin.BackgroundTransparency = 1
+AutoSpin.Text = "🔁 AutoSpin | Mini Mode 💸 39R$"
+AutoSpin.TextColor3 = Color3.new(1,1,1)
+AutoSpin.Font = Enum.Font.GothamSemibold
+AutoSpin.TextSize = 13
+
+-- Drag Function
+local dragToggle, dragInput, dragStart, startPos
+MainFrame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragToggle = true
+		dragStart = input.Position
+		startPos = MainFrame.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragToggle = false
+			end
+		end)
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if dragToggle and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+end)
+
+-- Toggle UI ON/OFF
+ToggleBtn.MouseButton1Click:Connect(function()
+	MainFrame.Visible = not MainFrame.Visible
+end)
+
+-- ESP Loop
+RunService.RenderStepped:Connect(function()
+	if _G.ESP then
+		for _, player in pairs(Players:GetPlayers()) do
+			if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+				if not player.Character.Head:FindFirstChild("👀 HIDERS") then
+					local tag = Instance.new("BillboardGui", player.Character.Head)
+					tag.Name = "👀 HIDERS"
+					tag.Size = UDim2.new(0, 100, 0, 40)
+					tag.AlwaysOnTop = true
+					local text = Instance.new("TextLabel", tag)
+					text.Size = UDim2.new(1,0,1,0)
+					text.BackgroundTransparency = 1
+					text.Text = "👀 HIDERS"
+					text.TextColor3 = Color3.fromRGB(255, 170, 0)
+					text.Font = Enum.Font.GothamBold
+					text.TextSize = 16
+				end
+			end
+		end
+	else
+		for _, player in pairs(Players:GetPlayers()) do
+			if player.Character and player.Character:FindFirstChild("Head") then
+				if player.Character.Head:FindFirstChild("👀 HIDERS") then
+					player.Character.Head:FindFirstChild("👀 HIDERS"):Destroy()
+				end
+			end
 		end
 	end
 end)
 
--- Main UI
-local MainUI = Instance.new("ScreenGui", game.CoreGui)
-MainUI.Name = "ShrinkHideSeekUI"
-local Frame = Instance.new("Frame", MainUI)
-Frame.Size = UDim2.new(0, 290, 0, 360)
-Frame.Position = UDim2.new(0.5, -145, 0.5, -180)
-Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-Frame.BorderSizePixel = 0
-Frame.Visible = false
-Frame.Active = true
-Frame.Draggable = true
-
-local UIListLayout = Instance.new("UIListLayout", Frame)
-UIListLayout.Padding = UDim.new(0, 6)
-
-local function createToggle(label, callback)
-	local btn = Instance.new("TextButton", Frame)
-	btn.Size = UDim2.new(1, -12, 0, 32)
-	btn.Position = UDim2.new(0, 6, 0, 0)
-	btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-	btn.TextColor3 = Color3.new(0, 1, 0)
-	btn.Font = Enum.Font.SourceSansBold
-	btn.TextSize = 18
-	btn.Text = "🟩 "..label
-	local state = false
-	btn.MouseButton1Click:Connect(function()
-		state = not state
-		btn.Text = (state and "🟩 " or "🟥 ")..label
-		btn.TextColor3 = state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-		callback(state)
-	end)
-end
-
--- HITBOX SLIDER
-local HitboxSize = 10
-_G.Disabled = false
-_G.HeadSize = 10
-
-local Slider = Instance.new("TextButton", Frame)
-Slider.Size = UDim2.new(1, -12, 0, 32)
-Slider.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-Slider.Text = "📦 Hitbox Size: ".._G.HeadSize
-Slider.Font = Enum.Font.SourceSansBold
-Slider.TextSize = 18
-Slider.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-Slider.MouseButton1Click:Connect(function()
-	_G.HeadSize = _G.HeadSize + 10
-	if _G.HeadSize > 100 then
-		_G.HeadSize = 10
-	end
-	Slider.Text = "📦 Hitbox Size: ".._G.HeadSize
-end)
-
--- HITBOX RENDER
-RS.RenderStepped:Connect(function()
+-- Hitbox Loop
+RunService.RenderStepped:Connect(function()
 	if _G.Disabled then
 		for _,v in pairs(Players:GetPlayers()) do
 			if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-				local hrp = v.Character:FindFirstChild("HumanoidRootPart")
+				local hrp = v.Character.HumanoidRootPart
 				pcall(function()
 					hrp.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
 					hrp.Transparency = 0.7
-					hrp.Material = Enum.Material.Neon
 					hrp.BrickColor = BrickColor.new("Really blue")
+					hrp.Material = Enum.Material.Neon
 					hrp.CanCollide = false
 				end)
 			end
@@ -104,95 +201,13 @@ RS.RenderStepped:Connect(function()
 	end
 end)
 
--- ESP NameTag
-local ESPEnabled = false
-local function createESP(player)
-	if player.Character then
-		local head = player.Character:FindFirstChild("Head")
-		if head and not head:FindFirstChild("ESPName") then
-			local tag = Instance.new("BillboardGui", head)
-			tag.Name = "ESPName"
-			tag.Size = UDim2.new(0,100,0,40)
-			tag.Adornee = head
-			tag.AlwaysOnTop = true
-			local txt = Instance.new("TextLabel", tag)
-			txt.Size = UDim2.new(1,0,1,0)
-			txt.Text = "👀 HIDERS"
-			txt.TextColor3 = Color3.fromRGB(255,140,0)
-			txt.BackgroundTransparency = 1
-			txt.TextScaled = true
-		end
-	end
-end
-
--- Toggle Features
-createToggle("ESP 👀 HIDERS", function(state)
-	ESPEnabled = state
-	if state then
-		for _,v in pairs(Players:GetPlayers()) do
-			if v ~= LocalPlayer then
-				createESP(v)
-			end
-		end
-	else
-		for _,v in pairs(Players:GetPlayers()) do
-			if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
-				local tag = v.Character.Head:FindFirstChild("ESPName")
-				if tag then tag:Destroy() end
+-- Noclip Loop
+RunService.Stepped:Connect(function()
+	if _G.Noclip and LocalPlayer.Character then
+		for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
+			if part:IsA("BasePart") and part.CanCollide then
+				part.CanCollide = false
 			end
 		end
 	end
-end)
-
-createToggle("Hitbox ON/OFF", function(state)
-	_G.Disabled = state
-end)
-
--- Noclip
-local Noclip = false
-createToggle("Noclip", function(state)
-	Noclip = state
-end)
-
-RS.Stepped:Connect(function()
-	if Noclip and LocalPlayer.Character then
-		for _,v in pairs(LocalPlayer.Character:GetDescendants()) do
-			if v:IsA("BasePart") and v.CanCollide then
-				v.CanCollide = false
-			end
-		end
-	end
-end)
-
--- Auto Spin
-createToggle("🔄 Auto Spin", function(state)
-	if state then
-		_G.spinLoop = true
-		task.spawn(function()
-			while _G.spinLoop do
-				game:GetService("ReplicatedStorage"):WaitForChild("SpinRemote"):FireServer()
-				task.wait(2)
-			end
-		end)
-	else
-		_G.spinLoop = false
-	end
-end)
-
--- Mini / BIG MODE
-createToggle("🎮 Mini Mode (39R$)", function(state)
-	if state then
-		LocalPlayer.Character.Humanoid.HipHeight = 1
-	end
-end)
-
-createToggle("🧍 BIG MODE", function(state)
-	if state then
-		LocalPlayer.Character.Humanoid.HipHeight = 15
-	end
-end)
-
--- Toggle UI visibility
-toggleBtn.MouseButton1Click:Connect(function()
-	Frame.Visible = not Frame.Visible
 end)
