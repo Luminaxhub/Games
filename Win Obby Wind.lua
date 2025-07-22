@@ -1,4 +1,4 @@
--- ✅ Made by @Luminaprojects – For Game ID: 15460478336 (Win Obby Land Only)
+-- Made by @Luminaprojects – For Game ID: 15460478336 (Win Obby Land Only)
 
 -- Game ID Lock
 if game.PlaceId ~= 15460478336 then
@@ -136,7 +136,7 @@ createButton("Give Squid Pet 🐙", function()
 end)
 
 createButton("Toggle Fly 🌬️", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/Luminaxhub/Games/refs/heads/main/Fly%20Gui.lua"))()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))()
 end)
 
 -- WalkSpeed
