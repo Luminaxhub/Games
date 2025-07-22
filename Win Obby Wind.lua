@@ -1,5 +1,9 @@
--- ✅ UI Win Obby Land by @Luminaprojects
--- 🌈 RGB + Fly GUI V5 + WalkSpeed + JumpPower
+-- ✅ Script by - luminaprojects | Game Lock: Win Obby Land
+local gameTitle = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+if not string.find(gameTitle, "Win Obby Land") then
+    warn("❌ Script only for game: Win Obby Land")
+    return
+end
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -34,7 +38,7 @@ end)
 local title = Instance.new("TextLabel", mainFrame)
 title.Size = UDim2.new(1, 0, 0, 30)
 title.BackgroundTransparency = 1
-title.Text = "🌈 Win Obby Land"
+title.Text = "🌈 Win Obby Land GUI"
 title.Font = Enum.Font.GothamBold
 title.TextSize = 18
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -46,16 +50,14 @@ spawn(function()
 end)
 
 -- Drag
-local dragging, dragInput, dragStart, startPos
+local dragging, dragStart, startPos
 title.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		dragging = true
 		dragStart = input.Position
 		startPos = mainFrame.Position
 		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
+			if input.UserInputState == Enum.UserInputState.End then dragging = false end
 		end)
 	end
 end)
@@ -63,7 +65,8 @@ end)
 UserInputService.InputChanged:Connect(function(input)
 	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 		local delta = input.Position - dragStart
-		mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+		mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+			startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 	end
 end)
 
@@ -107,7 +110,7 @@ createButton("Give Squid Pet 🐙", function()
 	game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("PET_Equip"):FireServer(unpack(args))
 end)
 
--- Toggle Fly (Fly GUI V5)
+-- Toggle Fly 🌬️
 createButton("Toggle Fly 🌬️", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/Hotdog120823/FlyGuiV5/refs/heads/main/FlyGui"))()
 end)
@@ -165,8 +168,6 @@ credit.BackgroundTransparency = 1
 credit.Text = "⭐ Script by - luminaprojects ⭐"
 credit.Font = Enum.Font.Gotham
 credit.TextSize = 14
-
--- RGB credit
 spawn(function()
 	while task.wait() do
 		local hue = (tick() % 5) / 5
