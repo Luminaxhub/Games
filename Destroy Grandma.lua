@@ -1,68 +1,76 @@
--- ✅ Final Version - Destroy Grandma ESP UI
+-- ✅ Updated ESP Script UI Premium Style - Destroy Grandma by @Luminaprojects
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 
-local ESP_PLAYER_COLOR = Color3.fromRGB(255, 0, 0)
-local ESP_KEY_COLOR = Color3.fromRGB(0, 255, 0)
-local ESP_CHEST_COLOR = Color3.fromRGB(255, 215, 0)
-local ESP_TOOL_COLOR = Color3.fromRGB(0, 0, 255)
+local ESP_PLAYER_COLOR = Color3.fromRGB(255, 0, 0) -- Red for players
+local ESP_KEY_COLOR = Color3.fromRGB(0, 255, 0) -- Green for keys
+local ESP_CHEST_COLOR = Color3.fromRGB(255, 215, 0) -- Gold for chests
+local ESP_TOOL_COLOR = Color3.fromRGB(0, 0, 255) -- Blue for tools
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "DestroyGrandmaUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
--- Rayfield-like Notification
-local Notification = Instance.new("TextLabel")
-Notification.Size = UDim2.new(0, 300, 0, 50)
-Notification.Position = UDim2.new(0.5, -150, 0.05, 0)
-Notification.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-Notification.Text = "Luminaprojects"
-Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
-Notification.TextScaled = true
-Notification.Font = Enum.Font.GothamBold
-Notification.BackgroundTransparency = 0.1
-Notification.BorderSizePixel = 0
-Notification.ZIndex = 10
-Notification.Parent = ScreenGui
+-- Rayfield-like Floating Notification (Text Only)
+local RayNotif = Instance.new("TextLabel")
+RayNotif.Name = "RayfieldNotification"
+RayNotif.Size = UDim2.new(0, 300, 0, 40)
+RayNotif.Position = UDim2.new(0.5, -150, 0.05, 0)
+RayNotif.BackgroundTransparency = 1
+RayNotif.Text = "Luminaprojects"
+RayNotif.TextColor3 = Color3.fromRGB(255, 255, 255)
+RayNotif.TextStrokeTransparency = 0.5
+RayNotif.Font = Enum.Font.GothamBold
+RayNotif.TextScaled = true
+RayNotif.ZIndex = 10
+RayNotif.Parent = ScreenGui
 
 spawn(function()
-    wait(3)
-    Notification:Destroy()
+    wait(2.5)
+    RayNotif:Destroy()
 end)
 
--- Main UI
+-- Main Frame (Modern Glass UI Style)
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 300, 0, 350)
+Frame.Size = UDim2.new(0, 320, 0, 400)
 Frame.Position = UDim2.new(0.7, 0, 0.2, 0)
-Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Frame.BorderSizePixel = 2
-Frame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Frame.BackgroundTransparency = 0.1
+Frame.BorderSizePixel = 0
 Frame.Active = true
 Frame.Draggable = true
 Frame.Parent = ScreenGui
 
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Thickness = 2
+UIStroke.Color = Color3.fromRGB(0, 255, 255)
+UIStroke.Parent = Frame
+
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0.15, 0)
-Title.Text = "Destroy Grandma"
+Title.Size = UDim2.new(1, 0, 0.13, 0)
+Title.Text = "DESTROY GRANDMA"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.BackgroundTransparency = 1
 Title.TextScaled = true
-Title.Font = Enum.Font.GothamBold
+Title.Font = Enum.Font.GothamBlack
 Title.Parent = Frame
 
-local CloseButton = Instance.new("TextButton")
-CloseButton.Size = UDim2.new(0.2, 0, 0.15, 0)
-CloseButton.Position = UDim2.new(0.8, 0, 0, 0)
-CloseButton.Text = "X"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-CloseButton.Font = Enum.Font.GothamBold
-CloseButton.Parent = Frame
-CloseButton.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-end)
+-- Subtitle / Credit (Bottom Center)
+local Credit = Instance.new("TextLabel")
+Credit.AnchorPoint = Vector2.new(0.5, 1)
+Credit.Position = UDim2.new(0.5, 0, 1, -5)
+Credit.Size = UDim2.new(1, -20, 0.07, 0)
+Credit.Text = "🔎 script by - luminaprojects 🔎"
+Credit.TextColor3 = Color3.fromRGB(0, 255, 255)
+Credit.TextScaled = true
+Credit.BackgroundTransparency = 1
+Credit.Font = Enum.Font.Gotham
+Credit.Parent = Frame
 
+-- Function createHighlight remains same
 local function createHighlight(target, color)
     if target:IsA("Model") or target:IsA("BasePart") then
         if not target:FindFirstChildOfClass("Highlight") then
@@ -105,7 +113,7 @@ local function togglePlayerESP(state)
 end
 
 Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function()
+    player.CharacterAdded:Connect(function(character)
         togglePlayerESP(true)
     end)
 end)
@@ -120,9 +128,10 @@ if workspace:FindFirstChild("Map") then
     end
 end
 
+-- Toggle Builder (Premium Style Switch)
 local function createToggleSwitch(parent, position, labelText, callback)
     local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(0.9, 0, 0.15, 0)
+    Container.Size = UDim2.new(0.9, 0, 0.12, 0)
     Container.Position = position
     Container.BackgroundTransparency = 1
     Container.Parent = parent
@@ -137,27 +146,39 @@ local function createToggleSwitch(parent, position, labelText, callback)
     Label.Font = Enum.Font.Gotham
     Label.Parent = Container
 
-    local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(0.25, 0, 1, 0)
-    Button.Position = UDim2.new(0.75, 0, 0, 0)
-    Button.Text = "OFF"
-    Button.TextScaled = true
-    Button.Font = Enum.Font.GothamBold
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-    Button.Parent = Container
+    local SwitchFrame = Instance.new("Frame")
+    SwitchFrame.Size = UDim2.new(0.25, 0, 0.8, 0)
+    SwitchFrame.Position = UDim2.new(0.75, 0, 0.1, 0)
+    SwitchFrame.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    SwitchFrame.BorderSizePixel = 0
+    SwitchFrame.Parent = Container
+
+    local Dot = Instance.new("Frame")
+    Dot.Size = UDim2.new(0.4, 0, 1, 0)
+    Dot.Position = UDim2.new(0, 0, 0, 0)
+    Dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Dot.BorderSizePixel = 0
+    Dot.Parent = SwitchFrame
 
     local Toggled = false
 
-    Button.MouseButton1Click:Connect(function()
-        Toggled = not Toggled
-        Button.Text = Toggled and "ON" or "OFF"
-        Button.BackgroundColor3 = Toggled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(200, 0, 0)
-        callback(Toggled)
+    SwitchFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            Toggled = not Toggled
+            if Toggled then
+                Dot:TweenPosition(UDim2.new(0.6, 0, 0, 0), "Out", "Sine", 0.2)
+                SwitchFrame.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+            else
+                Dot:TweenPosition(UDim2.new(0, 0, 0, 0), "Out", "Sine", 0.2)
+                SwitchFrame.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+            end
+            callback(Toggled)
+        end
     end)
 end
 
-createToggleSwitch(Frame, UDim2.new(0.05, 0, 0.2, 0), "Player ESP", togglePlayerESP)
-createToggleSwitch(Frame, UDim2.new(0.05, 0, 0.35, 0), "Key ESP", function(state) toggleESP("Keys", ESP_KEY_COLOR, state) end)
-createToggleSwitch(Frame, UDim2.new(0.05, 0, 0.5, 0), "Chest ESP", function(state) toggleESP("Chests", ESP_CHEST_COLOR, state) end)
-createToggleSwitch(Frame, UDim2.new(0.05, 0, 0.65, 0), "Tool ESP", function(state) toggleESP("Tools", ESP_TOOL_COLOR, state) end)
+-- Add Toggles
+createToggleSwitch(Frame, UDim2.new(0.05, 0, 0.18, 0), "Player ESP", togglePlayerESP)
+createToggleSwitch(Frame, UDim2.new(0.05, 0, 0.33, 0), "Key ESP", function(state) toggleESP("Keys", ESP_KEY_COLOR, state) end)
+createToggleSwitch(Frame, UDim2.new(0.05, 0, 0.48, 0), "Chest ESP", function(state) toggleESP("Chests", ESP_CHEST_COLOR, state) end)
+createToggleSwitch(Frame, UDim2.new(0.05, 0, 0.63, 0), "Tool ESP", function(state) toggleESP("Tools", ESP_TOOL_COLOR, state) end)
