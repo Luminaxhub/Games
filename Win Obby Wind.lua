@@ -2,16 +2,15 @@
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 local Teleporting = false
 
--- Create UI
+-- UI Setup
 local screenGui = Instance.new("ScreenGui", game.CoreGui)
 screenGui.ResetOnSpawn = false
 
 local mainFrame = Instance.new("Frame", screenGui)
-mainFrame.Size = UDim2.new(0, 220, 0, 210)
+mainFrame.Size = UDim2.new(0, 220, 0, 240)
 mainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
 mainFrame.BackgroundTransparency = 0.15
 mainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
@@ -46,14 +45,13 @@ task.spawn(function()
 	end
 end)
 
--- Drag
+-- Drag UI
 local dragging, dragInput, dragStart, startPos
 mainFrame.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 		dragging = true
 		dragStart = input.Position
 		startPos = mainFrame.Position
-
 		input.Changed:Connect(function()
 			if input.UserInputState == Enum.UserInputState.End then
 				dragging = false
@@ -89,7 +87,7 @@ toggle.MouseButton1Click:Connect(function()
 	mainFrame.Visible = not mainFrame.Visible
 end)
 
--- Button Function
+-- Button Generator
 local function createButton(text, pos, callback)
 	local button = Instance.new("TextButton", mainFrame)
 	button.Size = UDim2.new(0.9, 0, 0, 30)
@@ -102,35 +100,32 @@ local function createButton(text, pos, callback)
 	button.MouseButton1Click:Connect(callback)
 end
 
--- Inf Wins 🏆 (Toggle Auto Teleport)
+-- Inf Wins
 local autoTP = false
 createButton("Inf Wins 🏆", UDim2.new(0.05, 0, 0, 40), function()
 	autoTP = not autoTP
 	if autoTP then
-		warn("Auto Teleport ON")
 		while autoTP do
-			local character = Players.LocalPlayer.Character
-			if character and character:FindFirstChild("HumanoidRootPart") then
-				character:MoveTo(Vector3.new(10, 276, -277))
+			local char = Players.LocalPlayer.Character
+			if char and char:FindFirstChild("HumanoidRootPart") then
+				char:MoveTo(Vector3.new(10, 276, -277))
 			end
 			task.wait(2)
 		end
-	else
-		warn("Auto Teleport OFF")
 	end
 end)
 
--- Finish Path 🕊️
+-- Finish Path
 createButton("Finish Path 🕊️", UDim2.new(0.05, 0, 0, 75), function()
-	local character = Players.LocalPlayer.Character
-	if character and character:FindFirstChild("HumanoidRootPart") then
+	local char = Players.LocalPlayer.Character
+	if char and char:FindFirstChild("HumanoidRootPart") then
 		task.delay(2, function()
-			character:MoveTo(Vector3.new(21, 197, -229))
+			char:MoveTo(Vector3.new(21, 197, -229))
 		end)
 	end
 end)
 
--- Give Squid Pet 🐙
+-- Squid Pet
 createButton("Give Squid Pet 🐙", UDim2.new(0.05, 0, 0, 110), function()
 	local args = { "Squid Pet" }
 	game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("PET_Equip"):FireServer(unpack(args))
@@ -144,18 +139,33 @@ createButton("Show Path 😳", UDim2.new(0.05, 0, 0, 145), function()
 	for _, part in ipairs(workspace:GetDescendants()) do
 		if part:IsA("Part") and part.Size.Y < 1 and part.Position.Y > root.Position.Y - 10 and part.Position.Y < root.Position.Y + 30 then
 			if part.Anchored and part.CanCollide and part.Transparency < 0.4 then
-				local highlight = Instance.new("Highlight")
-				highlight.Parent = part
-				highlight.FillColor = Color3.fromRGB(0, 255, 0)
-				highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-				highlight.FillTransparency = 0.3
-				highlight.OutlineTransparency = 0
+				-- Clone untuk cek apakah jatuh
+				local test = part:Clone()
+				test.Anchored = false
+				test.CanCollide = true
+				test.Position = part.Position + Vector3.new(0, 3, 0)
+				test.Parent = workspace
+				task.wait(0.1)
+				local fall = math.abs(test.Position.Y - part.Position.Y)
+				test:Destroy()
+
+				if fall < 1 then
+					-- Aman, kasih highlight
+					local highlight = Instance.new("Highlight")
+					highlight.Parent = part
+					highlight.FillColor = Color3.fromRGB(0, 255, 0)
+					highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+					highlight.FillTransparency = 0.3
+					highlight.OutlineTransparency = 0
+				else
+					part:Destroy() -- Salah, hapus
+				end
 			end
 		end
 	end
 end)
 
--- Credit RGB
+-- Credit
 local credit = Instance.new("TextLabel", mainFrame)
 credit.Size = UDim2.new(1, 0, 0, 25)
 credit.Position = UDim2.new(0, 0, 1, -25)
@@ -165,6 +175,7 @@ credit.TextSize = 12
 credit.Font = Enum.Font.GothamBold
 credit.TextStrokeTransparency = 0.4
 
+-- RGB Credit
 task.spawn(function()
 	while true do
 		for i = 0, 1, 0.01 do
