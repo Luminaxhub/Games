@@ -45,7 +45,7 @@ end)
 local scroll = Instance.new("ScrollingFrame", main)
 scroll.Size = UDim2.new(1, 0, 1, -40)
 scroll.Position = UDim2.new(0, 0, 0, 40)
-scroll.CanvasSize = UDim2.new(0, 0, 0, 430)
+scroll.CanvasSize = UDim2.new(0, 0, 0, 500)
 scroll.ScrollBarThickness = 6
 scroll.BackgroundTransparency = 1
 scroll.BorderSizePixel = 0
@@ -89,23 +89,29 @@ local function makeBtn(text, callback)
 	btn.MouseButton1Click:Connect(callback)
 end
 
--- Cash Teleport Buttons
+-- 💰 CASH Buttons
 makeBtn("💰 1K CASH", function() plr.Character:MoveTo(Vector3.new(-1, 50, -1138)) end)
 makeBtn("💰 2.5K CASH", function() plr.Character:MoveTo(Vector3.new(500, 52, -2636)) end)
 makeBtn("💰 5K CASH", function() plr.Character:MoveTo(Vector3.new(999, 55, -5125)) end)
 makeBtn("💰 10K CASH", function() plr.Character:MoveTo(Vector3.new(1499, 56, -10135)) end)
 makeBtn("💰 25K CASH", function() plr.Character:MoveTo(Vector3.new(1999, 52, -25139)) end)
 
--- World Teleport Buttons
+-- 🌍 WORLD Buttons
 makeBtn("🌍 World 5", function() plr.Character:MoveTo(Vector3.new(2000, 3, 11)) end)
 makeBtn("🌍 World 4", function() plr.Character:MoveTo(Vector3.new(1498, 3, 13)) end)
 makeBtn("🌍 World 3", function() plr.Character:MoveTo(Vector3.new(999, 3, 12)) end)
 makeBtn("🌍 World 2", function() plr.Character:MoveTo(Vector3.new(499, 3, 11)) end)
 makeBtn("🌍 World 1", function() plr.Character:MoveTo(Vector3.new(0, 3, 10)) end)
 
--- Tambahan: Unlocked Fun Zone
+-- 💥 Unlocked Fun Zone
 makeBtn("💥 Unlocked Fun Zone", function()
-	plr.Character:MoveTo(Vector3.new(-0, 3, 103)) -- Ganti posisi jika berbeda
+	local barrier = workspace:FindFirstChild("FunZone")
+	if barrier and barrier:FindFirstChild("Barriers") and barrier.Barriers:FindFirstChild("Entrance") then
+		barrier.Barriers.Entrance:Destroy()
+		warn("✅ Fun Zone barrier removed")
+	else
+		warn("❌ Entrance not found")
+	end
 end)
 
 -- Credit
@@ -127,9 +133,9 @@ spawn(function()
 	end
 end)
 
--- Toggle
+-- Toggle Show/Hide UI
 toggle.MouseButton1Click:Connect(function()
 	main.Visible = not main.Visible
 end)
 
-warn("✅ Lumina UI Loaded with Scroll & Unlocked Fun Zone")
+warn("✅ UI Loaded with Scroll + Fun Zone Unlock")
