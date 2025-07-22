@@ -1,5 +1,5 @@
--- Game Lock
-if tostring(game.GameId) ~= "99808106182938" then
+-- ✅ Game Lock
+if game.GameId ~= 99808106182938 then
 	warn("❌ Script only works in: Cross the Bridge, Get Rich")
 	return
 end
@@ -8,11 +8,12 @@ local plr = game.Players.LocalPlayer
 repeat task.wait() until plr:FindFirstChild("PlayerGui") and plr.Character
 local hum = plr.Character:WaitForChild("Humanoid")
 
--- UI
-local gui = Instance.new("ScreenGui", plr.PlayerGui)
+-- ✅ Safe UI Creation
+local gui = Instance.new("ScreenGui")
 gui.Name = "CrossBridgeUI"
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.ResetOnSpawn = false
+gui.Parent = plr:WaitForChild("PlayerGui")
 
 -- Toggle Button
 local toggle = Instance.new("TextButton", gui)
@@ -26,7 +27,7 @@ toggle.BackgroundColor3 = Color3.fromRGB(45,45,45)
 toggle.Draggable = true
 toggle.Active = true
 
--- Main Frame (container)
+-- Main Frame
 local main = Instance.new("Frame", gui)
 main.Size = UDim2.new(0, 300, 0, 420)
 main.Position = UDim2.new(0, 80, 0, 150)
@@ -38,7 +39,7 @@ main.Draggable = true
 main.ClipsDescendants = true
 
 -- RGB border
-spawn(function()
+task.spawn(function()
 	local hue = 0
 	while true do
 		hue = (hue + 1) % 360
@@ -57,7 +58,6 @@ scroll.BackgroundTransparency = 1
 scroll.BorderSizePixel = 0
 scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
--- Layout
 local layout = Instance.new("UIListLayout", scroll)
 layout.Padding = UDim.new(0, 8)
 layout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -65,14 +65,13 @@ layout.SortOrder = Enum.SortOrder.LayoutOrder
 -- Title
 local title = Instance.new("TextLabel", main)
 title.Size = UDim2.new(1, 0, 0, 40)
-title.Position = UDim2.new(0, 0, 0, 0)
 title.Text = "🌉 Cross the Bridge, Get Rich!"
 title.Font = Enum.Font.GothamBold
 title.TextSize = 18
 title.BackgroundTransparency = 1
 title.TextColor3 = Color3.new(1,1,1)
 
-spawn(function()
+task.spawn(function()
 	local hue = 0
 	while true do
 		hue = (hue + 1) % 360
@@ -81,7 +80,7 @@ spawn(function()
 	end
 end)
 
--- Button generator
+-- Button Generator
 local function makeBtn(text, callback)
 	local btn = Instance.new("TextButton", scroll)
 	btn.Size = UDim2.new(1, -40, 0, 30)
@@ -95,21 +94,21 @@ local function makeBtn(text, callback)
 	btn.MouseButton1Click:Connect(callback)
 end
 
--- 💰 CASH Buttons
+-- 💰 Teleport Cash
 makeBtn("💰 1K CASH", function() plr.Character:MoveTo(Vector3.new(-1, 50, -1138)) end)
 makeBtn("💰 2.5K CASH", function() plr.Character:MoveTo(Vector3.new(500, 52, -2636)) end)
 makeBtn("💰 5K CASH", function() plr.Character:MoveTo(Vector3.new(999, 55, -5125)) end)
 makeBtn("💰 10K CASH", function() plr.Character:MoveTo(Vector3.new(1499, 56, -10135)) end)
 makeBtn("💰 25K CASH", function() plr.Character:MoveTo(Vector3.new(1999, 52, -25139)) end)
 
--- 🌍 WORLD Buttons
+-- 🌍 Teleport World
 makeBtn("🌍 World 5", function() plr.Character:MoveTo(Vector3.new(2000, 3, 11)) end)
 makeBtn("🌍 World 4", function() plr.Character:MoveTo(Vector3.new(1498, 3, 13)) end)
 makeBtn("🌍 World 3", function() plr.Character:MoveTo(Vector3.new(999, 3, 12)) end)
 makeBtn("🌍 World 2", function() plr.Character:MoveTo(Vector3.new(499, 3, 11)) end)
 makeBtn("🌍 World 1", function() plr.Character:MoveTo(Vector3.new(0, 3, 10)) end)
 
--- 💥 Unlocked Fun Zone
+-- 💥 Buka Fun Zone
 makeBtn("💥 Unlocked Fun Zone", function()
 	local barrier = workspace:FindFirstChild("FunZone")
 	if barrier and barrier:FindFirstChild("Barriers") and barrier.Barriers:FindFirstChild("Entrance") then
@@ -130,7 +129,7 @@ credit.TextSize = 13
 credit.Text = "🔧 script by - luminaprojects"
 credit.TextColor3 = Color3.new(1,1,1)
 
-spawn(function()
+task.spawn(function()
 	local hue = 0
 	while true do
 		hue = (hue + 1) % 360
@@ -139,7 +138,7 @@ spawn(function()
 	end
 end)
 
--- Toggle Show/Hide UI
+-- ✅ Toggle Show/Hide
 toggle.MouseButton1Click:Connect(function()
 	main.Visible = not main.Visible
 end)
