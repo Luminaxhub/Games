@@ -1,177 +1,196 @@
--- 🌈 Win Obby Land GUI - Script by @luminaprojects
-if game.PlaceId ~= 15460478336 then return end
+-- ✅ Made by @Luminaprojects – For Game ID: 15460478336 (Win Obby Land Only)
+
+-- Game ID Lock
+if game.PlaceId ~= 15460478336 then
+	warn("This script is only for Win Obby Land.")
+	return
+end
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local TeleportService = game:GetService("TeleportService")
+local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
--- GUI Setup
+-- UI Setup
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
-ScreenGui.Name = "WinObbyGUI"
 ScreenGui.ResetOnSpawn = false
 
 local ToggleButton = Instance.new("TextButton", ScreenGui)
-ToggleButton.Size = UDim2.new(0, 40, 0, 40)
+ToggleButton.Size = UDim2.new(0, 60, 0, 30)
 ToggleButton.Position = UDim2.new(0, 10, 0, 10)
 ToggleButton.Text = "⚙️"
-ToggleButton.TextScaled = true
-ToggleButton.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleButton.BorderSizePixel = 0
-ToggleButton.ZIndex = 10
 
-local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 300, 0, 330)
-MainFrame.Position = UDim2.new(0, 60, 0, 80)
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-MainFrame.BorderSizePixel = 0
-MainFrame.Visible = true
-MainFrame.Active = true
-MainFrame.Draggable = true
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 300, 0, 350)
+Main.Position = UDim2.new(0.5, -150, 0.5, -175)
+Main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Main.BorderSizePixel = 4
 
-local UIStroke = Instance.new("UIStroke", MainFrame)
-UIStroke.Thickness = 2
-UIStroke.Color = Color3.fromRGB(255, 0, 0)
-
-task.spawn(function()
+-- RGB Border
+spawn(function()
 	while true do
-		for i = 0, 255, 4 do
-			UIStroke.Color = Color3.fromHSV(i / 255, 1, 1)
-			task.wait()
+		for i = 0, 1, 0.01 do
+			Main.BorderColor3 = Color3.fromHSV(i, 1, 1)
+			wait()
 		end
 	end
 end)
 
-local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.Position = UDim2.new(0, 0, 0, 0)
-Title.Text = "🏆 Win Obby Land"
-Title.TextScaled = true
-Title.TextColor3 = Color3.new(1, 1, 1)
-Title.BackgroundTransparency = 1
-Title.Font = Enum.Font.GothamBold
+Main.Visible = false
 
-task.spawn(function()
-	while true do
-		for i = 0, 255, 4 do
-			Title.TextColor3 = Color3.fromHSV(i / 255, 1, 1)
-			task.wait()
-		end
-	end
+ToggleButton.MouseButton1Click:Connect(function()
+	Main.Visible = not Main.Visible
 end)
 
-local function createButton(text, callback)
-	local btn = Instance.new("TextButton", MainFrame)
-	btn.Size = UDim2.new(1, -20, 0, 40)
-	btn.Position = UDim2.new(0, 10, 0, #MainFrame:GetChildren() * 45)
-	btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-	btn.TextColor3 = Color3.new(1, 1, 1)
-	btn.Text = text
-	btn.Font = Enum.Font.Gotham
-	btn.TextScaled = true
-	btn.MouseButton1Click:Connect(callback)
-	return btn
+-- Dragging
+local dragging, dragInput, dragStart, startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 end
 
--- Inf Wins toggle
-local autoWin = false
-createButton("Inf Wins 🏆", function()
-	autoWin = not autoWin
-	while autoWin do
-		LocalPlayer.Character:PivotTo(CFrame.new(10, 276, -277))
-		task.wait(2)
+Main.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = Main.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
 	end
 end)
 
--- Finish Path
-createButton("Finish Path 🕊️", function()
-	LocalPlayer.Character:PivotTo(CFrame.new(12, 197, -239))
-	task.wait(2)
+Main.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
 end)
 
--- Squid Pet
-createButton("Give Squid Pet", function()
-	local args = {"Squid Pet"}
+RunService.Heartbeat:Connect(function()
+	if dragging and dragInput then
+		update(dragInput)
+	end
+end)
+
+-- Title with RGB
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Text = "🏆 Win Obby Land"
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 20
+
+spawn(function()
+	while true do
+		for i = 0, 1, 0.01 do
+			Title.TextColor3 = Color3.fromHSV(i, 1, 1)
+			wait()
+		end
+	end
+end)
+
+-- Buttons + Inputs
+local spacing = 40
+local function createButton(name, func)
+	local btn = Instance.new("TextButton", Main)
+	btn.Size = UDim2.new(0.9, 0, 0, 30)
+	btn.Position = UDim2.new(0.05, 0, 0, spacing)
+	btn.Text = name
+	btn.Font = Enum.Font.Gotham
+	btn.TextSize = 14
+	btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.BorderSizePixel = 0
+	btn.MouseButton1Click:Connect(func)
+	spacing += 35
+end
+
+local autoTP = false
+createButton("Inf Wins 🏆", function()
+	autoTP = not autoTP
+	if autoTP then
+		while autoTP do
+			task.wait(2)
+			if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+				LocalPlayer.Character:PivotTo(CFrame.new(10, 276, -277))
+			end
+		end
+	end
+end)
+
+createButton("Finish Path 🕊️", function()
+	task.wait(2)
+	LocalPlayer.Character:PivotTo(CFrame.new(12, 197, -239))
+end)
+
+createButton("Give Squid Pet 🐙", function()
+	local args = { "Squid Pet" }
 	game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("PET_Equip"):FireServer(unpack(args))
 end)
 
--- Toggle Fly
-createButton("Toggle Fly", function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/Hotdog120823/FlyGuiV5/refs/heads/main/FlyGui"))()
+createButton("Toggle Fly 🌬️", function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/Luminaxhub/Games/refs/heads/main/Fly%20Gui.lua"))()
 end)
 
--- WalkSpeed input
-local WalkLabel = Instance.new("TextLabel", MainFrame)
-WalkLabel.Text = "WalkSpeed:"
-WalkLabel.Size = UDim2.new(1, -20, 0, 20)
-WalkLabel.Position = UDim2.new(0, 10, 0, #MainFrame:GetChildren() * 45)
-WalkLabel.BackgroundTransparency = 1
-WalkLabel.TextColor3 = Color3.new(1, 1, 1)
-WalkLabel.Font = Enum.Font.Gotham
-WalkLabel.TextScaled = true
+-- WalkSpeed
+local wsBox = Instance.new("TextBox", Main)
+wsBox.PlaceholderText = "WalkSpeed (default 16)"
+wsBox.Size = UDim2.new(0.9, 0, 0, 30)
+wsBox.Position = UDim2.new(0.05, 0, 0, spacing)
+wsBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+wsBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+wsBox.BorderSizePixel = 0
+wsBox.Font = Enum.Font.Gotham
+wsBox.TextSize = 14
+spacing += 35
 
-local WalkInput = Instance.new("TextBox", MainFrame)
-WalkInput.PlaceholderText = "Default: 16"
-WalkInput.Size = UDim2.new(1, -20, 0, 30)
-WalkInput.Position = UDim2.new(0, 10, 0, #MainFrame:GetChildren() * 45)
-WalkInput.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-WalkInput.TextColor3 = Color3.new(1, 1, 1)
-WalkInput.Font = Enum.Font.Gotham
-WalkInput.TextScaled = true
-WalkInput.FocusLost:Connect(function()
-	local value = tonumber(WalkInput.Text)
-	if value then
-		LocalPlayer.Character.Humanoid.WalkSpeed = value
+wsBox.FocusLost:Connect(function()
+	local num = tonumber(wsBox.Text)
+	if num and LocalPlayer.Character then
+		LocalPlayer.Character:WaitForChild("Humanoid").WalkSpeed = num
 	end
 end)
 
--- JumpPower input
-local JumpLabel = Instance.new("TextLabel", MainFrame)
-JumpLabel.Text = "JumpPower:"
-JumpLabel.Size = UDim2.new(1, -20, 0, 20)
-JumpLabel.Position = UDim2.new(0, 10, 0, #MainFrame:GetChildren() * 45)
-JumpLabel.BackgroundTransparency = 1
-JumpLabel.TextColor3 = Color3.new(1, 1, 1)
-JumpLabel.Font = Enum.Font.Gotham
-JumpLabel.TextScaled = true
+-- JumpPower
+local jpBox = Instance.new("TextBox", Main)
+jpBox.PlaceholderText = "JumpPower (default 50)"
+jpBox.Size = UDim2.new(0.9, 0, 0, 30)
+jpBox.Position = UDim2.new(0.05, 0, 0, spacing)
+jpBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+jpBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+jpBox.BorderSizePixel = 0
+jpBox.Font = Enum.Font.Gotham
+jpBox.TextSize = 14
+spacing += 35
 
-local JumpInput = Instance.new("TextBox", MainFrame)
-JumpInput.PlaceholderText = "Default: 50"
-JumpInput.Size = UDim2.new(1, -20, 0, 30)
-JumpInput.Position = UDim2.new(0, 10, 0, #MainFrame:GetChildren() * 45)
-JumpInput.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-JumpInput.TextColor3 = Color3.new(1, 1, 1)
-JumpInput.Font = Enum.Font.Gotham
-JumpInput.TextScaled = true
-JumpInput.FocusLost:Connect(function()
-	local value = tonumber(JumpInput.Text)
-	if value then
-		LocalPlayer.Character.Humanoid.JumpPower = value
+jpBox.FocusLost:Connect(function()
+	local num = tonumber(jpBox.Text)
+	if num and LocalPlayer.Character then
+		LocalPlayer.Character:WaitForChild("Humanoid").JumpPower = num
 	end
 end)
 
--- Credit RGB
-local Credit = Instance.new("TextLabel", MainFrame)
-Credit.Size = UDim2.new(1, -20, 0, 25)
-Credit.Position = UDim2.new(0, 10, 1, -30)
-Credit.BackgroundTransparency = 1
-Credit.TextScaled = true
-Credit.Font = Enum.Font.GothamBold
-Credit.Text = "Script by - luminaprojects"
-Credit.TextColor3 = Color3.new(1, 1, 1)
+-- Credit Label (RGB)
+local credit = Instance.new("TextLabel", Main)
+credit.Size = UDim2.new(1, 0, 0, 25)
+credit.Position = UDim2.new(0, 0, 1, -25)
+credit.BackgroundTransparency = 1
+credit.Font = Enum.Font.GothamBold
+credit.TextSize = 14
+credit.Text = "⭐ Script by - luminaprojects ⭐"
 
-task.spawn(function()
+spawn(function()
 	while true do
-		for i = 0, 255, 4 do
-			Credit.TextColor3 = Color3.fromHSV(i / 255, 1, 1)
-			task.wait()
+		for i = 0, 1, 0.01 do
+			credit.TextColor3 = Color3.fromHSV(i, 1, 1)
+			wait()
 		end
 	end
-end)
-
--- Toggle visibility
-ToggleButton.MouseButton1Click:Connect(function()
-	MainFrame.Visible = not MainFrame.Visible
 end)
