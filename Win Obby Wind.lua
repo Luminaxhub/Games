@@ -108,7 +108,7 @@ local function createButton(name, func)
 end
 
 local autoTP = false
-createButton("Inf Wins 🏆", function()
+createButton("Inf Wins", function()
  autoTP = not autoTP
  if autoTP then
   while autoTP do
@@ -118,7 +118,7 @@ createButton("Inf Wins 🏆", function()
  end
 end)
 
-createButton("Finish Path 🕊️", function()
+createButton("Finish Path", function()
  task.wait(2)
  LocalPlayer.Character:PivotTo(CFrame.new(12, 197, -239))
 end)
@@ -129,8 +129,8 @@ createButton("Give Squid Pet", function()
 end)
 
 -- Fly GUI NEW
-createButton("Toggle Fly 🪶", function()
- loadstring(game:HttpGet("https://pastebin.com/raw/eqxcZGHg"))() -- This must point to the FLY GUI NEW content you asked for
+createButton("Toggle Fly", function()
+ loadstring(game:HttpGet("https://raw.githubusercontent.com/Luminaxhub/Games/refs/heads/main/Fly%20Gui.lua"))() -- This must point to the FLY GUI NEW content you asked for
 end)
 
 -- Walkspeed & Jumppower input
