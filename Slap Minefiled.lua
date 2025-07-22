@@ -23,7 +23,6 @@ UIStroke.Thickness = 2
 UIStroke.Color = Color3.fromRGB(255, 0, 0)
 UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
--- RGB Animation
 task.spawn(function()
 	while true do
 		for i = 0, 255, 5 do
@@ -35,7 +34,6 @@ task.spawn(function()
 	end
 end)
 
--- Toggle Button (⚙️)
 local ToggleBtn = Instance.new("TextButton", ScreenGui)
 ToggleBtn.Size = UDim2.new(0, 40, 0, 40)
 ToggleBtn.Position = UDim2.new(0, 10, 0, 10)
@@ -50,7 +48,6 @@ ToggleBtn.MouseButton1Click:Connect(function()
 	Main.Visible = not Main.Visible
 end)
 
--- Title
 local Title = Instance.new("TextLabel", Main)
 Title.Size = UDim2.new(1, 0, 0, 25)
 Title.Position = UDim2.new(0, 0, 0, 5)
@@ -60,11 +57,10 @@ Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 18
 
--- Toggle Script Button
 local ToggleScript = Instance.new("TextButton", Main)
 ToggleScript.Size = UDim2.new(0, 180, 0, 30)
 ToggleScript.Position = UDim2.new(0.5, -90, 0.5, -5)
-ToggleScript.Text = "Run Teleport"
+ToggleScript.Text = "Get Wins"
 ToggleScript.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 ToggleScript.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleScript.Font = Enum.Font.Gotham
@@ -75,14 +71,13 @@ ToggleScript.MouseButton1Click:Connect(function()
 	active = not active
 	if active then
 		ToggleScript.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-		-- Teleport
+		
 		LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(1, 4, 749)
 	else
 		ToggleScript.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 	end
 end)
 
--- Credit
 local Credit = Instance.new("TextLabel", Main)
 Credit.Size = UDim2.new(1, 0, 0, 20)
 Credit.Position = UDim2.new(0, 0, 1, -22)
