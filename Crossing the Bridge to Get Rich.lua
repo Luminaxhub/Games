@@ -1,3 +1,9 @@
+-- Game Lock
+if tostring(game.GameId) ~= "99808106182938" then
+	warn("❌ Script only works in: Cross the Bridge, Get Rich")
+	return
+end
+
 local plr = game.Players.LocalPlayer
 repeat task.wait() until plr:FindFirstChild("PlayerGui") and plr.Character
 local hum = plr.Character:WaitForChild("Humanoid")
@@ -138,4 +144,4 @@ toggle.MouseButton1Click:Connect(function()
 	main.Visible = not main.Visible
 end)
 
-warn("✅ UI Loaded with Scroll + Fun Zone Unlock")
+warn("✅ UI Loaded & Locked to Cross the Bridge, Get Rich")
