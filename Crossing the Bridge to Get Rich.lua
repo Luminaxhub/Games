@@ -105,7 +105,7 @@ makeBtn("🌍 World 1", function() plr.Character:MoveTo(Vector3.new(0, 3, 10)) e
 
 -- Tambahan: Unlocked Fun Zone
 makeBtn("💥 Unlocked Fun Zone", function()
-	plr.Character:MoveTo(Vector3.new(3000, 3, 10)) -- Ganti posisi jika berbeda
+	plr.Character:MoveTo(Vector3.new(-0, 3, 103)) -- Ganti posisi jika berbeda
 end)
 
 -- Credit
